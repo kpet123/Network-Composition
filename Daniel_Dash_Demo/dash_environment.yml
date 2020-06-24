@@ -1,0 +1,18 @@
+name: dviz-dash-env
+
+channels:
+ - default
+ - conda-forge
+ - anaconda
+ - bioconda
+ - iainsgillis
+dependencies:
+ - python=3.7
+ - ipykernel
+ - snakemake
+ - numpy
+ - matplotlib
+ - pip
+ - music21
+ - networkx
+ - dash=1.13
