@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<body>
+
+<button onclick="myFunction()">Change graph</button>
+
+
+<script>
+$(document).ready(function(){
+	console.log("document ready working")
+})
+
+function myFunction() {
+	console.log("My function is running")
+	var data_to_save = {"data":0}
+	$.ajax({
+		type: "POST",
+		url: "clickme",
+		data: JSON.stringify(data_to_save),
+		sucess: function(result){
+			console.log("success")
+		},
+		error: function(request, status, error){
+			console.log("Error");
+			console.log(request)
+			console.log(status)
+			console.log(error)
+			
+		}
+	});  
+}
+</script>
+
+<script type="module">
+
+// Load the Observable runtime and inspector.
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+
+// Your notebook, compiled as an ES module.
+import notebook from "https://api.observablehq.com/d/660ed25f1beeb456.js?v=3";
+
+// Load the notebook, observing its cells with a default Inspector
+// that simply renders the value of each cell into the provided DOM node.
+new Runtime().module(notebook, Inspector.into(document.body));
+
+
+
+// Do this to just show the chart, need to create div with id="chart"
+// new Runtime().module(notebook, name => {
+//  if (name === "chart") {
+//    return new Inspector(document.querySelector("#chart"));
+//  }
+// });
+
+
+</script>
+
+
+
+
+
+</body>
