@@ -1,4 +1,4 @@
-name: musicnetwork-env
+name: mnetflask-env
 
 channels:
  - default
@@ -15,3 +15,4 @@ dependencies:
  - pip
  - music21
  - networkx
+ - flask
