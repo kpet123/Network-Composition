@@ -1,61 +1,32 @@
 <!DOCTYPE html>
 <head>
     <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="/static/interaction.js"></script>
 </head>
 
 <body>
 
-		<p id="demo"></p>
+		<div id="demo"></div>
 
 		<div>
-			<button id="save">Submit</button>		
+			<button id="save">Change to Grouped</button>		
 		</div>
 
 
 		<script>
 
-			var data = {{data|tojson}};
-			//testing
-			document.getElementById("demo").innerHTML = 5 + 6;
-			//define function
-			var pass_eg = function(data) {
-				 var obj = { name: "John", age: 30, city: "New York" };
-				    jQuery.ajax({
-					type: "POST",
-					url: "/pass_eg",    
-					dataType : "json",
-					contentType: "application/json; charset=utf-8",
-					data : JSON.stringify(obj),
-					success: function(result){
-						var all_data = result["data"]
-						data = all_data
-					},  
-			   	error: function(request, status, error){
-						console.log("Error");
-						console.log(request)
-						console.log(status)
-						console.log(error)
-					}   
-				}); 
-			}
-			//interactivity
-
-				$(document).ready(function(){
-					console.log("in custom_script document ready");
-					$("#save").click(function() {
-						pass_eg(data)
-
-
-					})
-				})
+			var data = {{data|tojson}}
 		</script>
-
 
 
 		<div>
 			<div>Data is </div>
-			<div >{{data}}</div>
+				<div id="data_test">
+				To see data write with two curly braces
+				</div>
 		<div>
+
+		
 		<script type="module">
 
 		// Load the Observable runtime and inspector.
@@ -66,8 +37,9 @@
 
 		// Load the notebook, observing its cells with a default Inspector
 		// that simply renders the value of each cell into the provided DOM node.
-		new Runtime().module(notebook, Inspector.into(document.body));
+		const main = new Runtime().module(notebook, Inspector.into(document.body));
 
+		main.redefine("data", data);
 
 
 		// Do this to just show the chart, need to create div with id="chart"
