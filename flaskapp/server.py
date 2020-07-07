@@ -36,19 +36,51 @@ def default(name=None):
 	return render_template('index.html', data=data)   
     
 
-@app.route('/pass_eg', methods=['GET', 'POST'])
-def pass_eg(name=None):
+@app.route('/shiftEncoding', methods=['GET', 'POST'])
+def shiftEncoding(name=None):
 	global data
-	grouping = [1, 5, 11, 27, 37, 49, 61, 75, "end"]
-	nodelst_group, transition_edges= \
-	mnet.convert_grouping(flute_notes, grouping)
 
-	g_group=mnet.create_graph(nodelst_group)
+	#The message from 
+	msg = request.get_json()
+	print(msg)
 
-	d1  = json_graph.node_link_data( mnet.convert_to_weighted(g_group))
-	data = d1
-	#print(data)
-	
+	#Change to Grouped
+	if msg == 1:
+		print("grouping code executed")
+		grouping = [1, 5, 11, 27, 37, 49, 61, 75, "end"]
+		nodelst_group, transition_edges= \
+		mnet.convert_grouping(flute_notes, grouping)
+
+		g_group=mnet.create_graph(nodelst_group)
+
+		new_data  = json_graph.node_link_data( mnet.convert_to_weighted(g_group))
+		data = new_data
+
+	#Change to Basic
+	if msg == 2:
+		nodelst_basic=mnet.convert_basic(flute_notes)
+		g_basic=mnet.create_graph(nodelst_basic)
+		new_data = json_graph.node_link_data( mnet.convert_to_weighted(g_basic))
+		data = new_data				
+
+	#Change to Roman Numeral -- this is very slow, I need to optimize code
+	if msg == 3:
+		chord_lst = list(s.chordify().recurse().notes)
+		nodelst = mnet.convert_chord_note(chord_lst, 'A')
+		g_rn=mnet.create_graph(nodelst)
+		new_data = json_graph.node_link_data(mnet.convert_to_weighted(g_rn))
+		print("roman numeral converted")	
+		data = new_data
+
+	if msg ==4:
+		chord_lst = s.flat.chordify().recurse().notes
+		offsets=[0.0, 16.0, 40.0, 104.0, 144.0, 162.0, 180.0, 201.0, "end"]
+		nodelst_group, transition_edges=mnet.convert_grouped_rn(chord_lst,\
+			 offsets, "A")
+		g_group=mnet.create_graph(nodelst_group)
+		new_data = json_graph.node_link_data(mnet.convert_to_weighted(g_group))
+		data = new_data
+	#Change to Grouped Roman Numeral
 	return jsonify(data = data)
 	#return render_template('index.html', data=json_data)
 

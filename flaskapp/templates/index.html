@@ -6,27 +6,40 @@
 
 <body>
 
-		<div id="demo"></div>
-
 		<div>
-			<button id="save">Change to Grouped</button>		
+		Click the below button to change to a different encoding scheme
 		</div>
 
+		<div>
+			<button id="grouped">Change to Forced Grouping Encoding</button>		
+			<button id="basic">Change to Basic Encoding</button>
+			<button id="RN">Change to Roman Numeral Encoding</button>
+			<button id="grouped_RN">Change to Grouped Roman Numeral Encoding</button>
+		</div>
 
+	
 		<script>
-
+			//the variable -data- is passed in during the html template's
+			//instantiation from Flask
+	
 			var data = {{data|tojson}}
+			//any information coming in needs to be converted to json 
+			//(to my knowlege) 
 		</script>
-
+		
+		<!--To display current json string, add {{data}} in the div  -->
+		<!-- currently used network. This is just here for debugging purposes-->
 
 		<div>
 			<div>Data is </div>
 				<div id="data_test">
-				To see data write with two curly braces
+				Change this code to print out current json string
 				</div>
 		<div>
 
-		
+		<!-- This script instantiates our Observable script and -->
+		<!--controls how information is passed in and out of -->
+		<!-- Observable-->
 		<script type="module">
 
 		// Load the Observable runtime and inspector.
@@ -39,15 +52,9 @@
 		// that simply renders the value of each cell into the provided DOM node.
 		const main = new Runtime().module(notebook, Inspector.into(document.body));
 
+		//Match the "data" variable defined in Observable to the data variable
+		//passed into index.html through Flask
 		main.redefine("data", data);
-
-
-		// Do this to just show the chart, need to create div with id="chart"
-		// new Runtime().module(notebook, name => {
-		//  if (name === "chart") {
-		//    return new Inspector(document.querySelector("#chart"));
-		//  }
-		// });
 
 
 		</script>
