@@ -1,8 +1,11 @@
-# Nikki Pet, ap3536
+#Flask-related imports
 from flask import Flask
 from flask import render_template
 from flask import Response, request, jsonify
+from flask import Flask, flash, request, redirect, url_for
+from werkzeug.utils import secure_filename
 
+#general imports
 import music21
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -10,9 +13,37 @@ import numpy as np
 import mnet
 from networkx.readwrite import json_graph
 import json
+import os
 
+
+'''
+define folder for uploaded data - may not include
+'''
+UPLOAD_FOLDER = '/uploads'
+ALLOWED_EXTENSIONS = {'xml', 'mid', 'midi', 'mxml'}
+
+'''
+Declare app
+'''
 
 app = Flask(__name__)
+
+'''
+Allow User to Upload Data in the form of ALLOWED_EXTENSIONS
+Code adapted from: 
+https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
+'''
+#set upload folder
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+#prune out files that are incorrect extension
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+
+
 
 '''
 Create Default Data
@@ -29,7 +60,7 @@ g_basic=mnet.create_graph(nodelst_basic)
 data = json_graph.node_link_data( mnet.convert_to_weighted(g_basic))
 #print(data)
 #data = {"test": "hi"}
-print(data)
+#print(data)
  
 @app.route('/') 
 def default(name=None): 
@@ -81,11 +112,28 @@ def shiftEncoding(name=None):
 		new_data = json_graph.node_link_data(mnet.convert_to_weighted(g_group))
 		data = new_data
 	#Change to Grouped Roman Numeral
+	print("about to be sent")
 	return jsonify(data = data)
 	#return render_template('index.html', data=json_data)
 
+@app.route('/success', methods = ['POST'])  
+def success():  
+    if request.method == 'POST': 
+	
+        f = request.files['file'] 
 
-
+		#parse and render data with "Basic" default
+        global data
+		 
+        f.save("../library/"+f.filename)
+        s = music21.corpus.parse(f.filename)
+		s = music21.corpus.parse('telemannfantasie1.xml')
+        topline = s[5]
+        topline_notes =list(topline.recurse().notes)
+        nodelst_basic=mnet.convert_basic(topline_notes)
+        g_basic=mnet.create_graph(nodelst_basic)
+        data = json_graph.node_link_data( mnet.convert_to_weighted(g_basic))  
+        return render_template("index.html", data=data)  
 
 if __name__ == '__main__':
    app.run(debug = True)
