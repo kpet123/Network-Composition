@@ -21,9 +21,9 @@ background-color: pink;
 <body>
 <div class="gen_info">
 	<h2> Data Features </h2>
-	<form>
-  		<label for="filename">Current Base Piece:</label>
-  		<input type="text" id="filename" name="filename" value={{filename}}>
+	<form action = "/changeparams" method = "post" 
+			enctype="multipart/form-data">
+  	
   		<label for="key">Key:</label>
   		<input type="text" id="key" name="key" value={{key}}><br>
   		<label for="grouping">Measure Offsets for Grouping:</label>
@@ -41,6 +41,8 @@ background-color: pink;
 		  <input type = "submit" value="Upload">
 	 </form>
 </div>
+<br>
+<br>
 <div>
 Click the below button to change to a different encoding scheme
 </div>
@@ -59,13 +61,14 @@ Click the below button to change to a different encoding scheme
 
 	
 	var data = {{data|tojson}}//corresponds Observable cell
-	var filename = {{filename|tojson}}
-	var randomwalk = {{randomwalk|tojson}}//corresponds to Observable
+	var random_walk = {{random_walk|tojson}}//corresponds to Observable
 	var key = {{key|tojson}}
 	var grouping = {{grouping|tojson}}
 	var offsets = {{offsets|tojson}}
 	//any information coming in needs to be converted to json 
 	//(to my knowlege) 
+    console.log("In definiing area")
+    console.log(random_walk)
 </script>
 
 <!--To display current json string, add {{data}} in the div  -->
@@ -79,7 +82,7 @@ Click the below button to change to a different encoding scheme
 		</div>
 	<h2>Random Walk is (hidden in final)</h2>
 		<div id="randomwalk_test" class="scroll_div">
-			{{randomwalk}}
+			{{random_walk}}
 		</div>
 	<h2>Key is (Part of form in final)</h2>
 		<div id="key_test">
@@ -108,17 +111,20 @@ Click the below button to change to a different encoding scheme
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 
 // Your notebook, compiled as an ES module.
-import notebook from "https://api.observablehq.com/d/660ed25f1beeb456.js?v=3";
 
+import notebook from "https://api.observablehq.com/@kpet123/music-composition-graph-in-progress-ii.js?v=3";
 // Load the notebook, observing its cells with a default Inspector
 // that simply renders the value of each cell into the provided DOM node.
 const main = new Runtime().module(notebook, Inspector.into(document.body));
 
 //Match the "data" variable defined in Observable to the data variable
 //passed into index.html through Flask
+console.log("Testing in Observable- key is :")
+console.log(key)
+console.log(data)
+main.redefine("random_walk", random_walk);
+
 main.redefine("data", data);
-
-
 </script>
 
 

@@ -39,7 +39,10 @@ error: function(request, status, error){
 //to . 
 $(document).ready(function(){
 	console.log("in custom_script document ready");
+	console.log("data is ");
 	console.log(data);
+    console.log("key is ");
+	console.log(key)
 	//'grouped' is the id of the html button associated with this action
 	$("#grouped").click(function() {
 		console.log(data);

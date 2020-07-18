@@ -36,6 +36,7 @@ Define Functions
 #Can apply to any file in ../library
 def make_basic_graph_from_file(filename):
     s = music21.corpus.parse(filename)
+    topline=s[0]#placeholder
     for section in s:
         t=type(section)
         if t == music21.stream.Part:
@@ -52,12 +53,14 @@ def make_grouped_graph_from_file(filename, grouping):
     s = music21.corpus.parse(filename)
     for section in s:
         if type(section)==music21.stream.Part:
-            topline = section
+            print(section)
+            tl = section
             break;
 			#ideally throw error if there is no part, need to reupload file
-    topline_notes =list(topline.recurse().notes)
+    print("topline is ", tl)
+    topline_notes =list(tl.recurse().notes)
     nodelst_group, transition_edges= \
-    		mnet.convert_grouping(flute_notes, grouping)
+    		mnet.convert_grouping(topline_notes, grouping)
     g_group=mnet.create_graph(nodelst_group)
     data = mnet.convert_to_weighted(g_group)
     return data
@@ -82,10 +85,11 @@ def make_grouped_rn_graph_from_file(filename, offsets, key):
 def make_randomwalk_json(graph, encoding_method):
     randomwalk=mnet.generate_randomwalk(graph)
     tune = encoding_method(randomwalk)
-    rwdict = {}
+    rwlst = []
     for note in tune:
-        rwdict[note.pitch.nameWithOctave] = note.duration.quarterLength*1000
-    return rwdict
+        rwlst.append({"note" : note.pitch.nameWithOctave, \
+        "duration": note.duration.quarterLength*1000})
+    return rwlst
 
 '''
 ****************************************
@@ -93,23 +97,23 @@ Set Default Values and Define Parameters
 Can be passed into Observable
 ****************************************
 '''
-filename = 'telemannfantasie1.xml'
+filename = 'telemannfantasie1.xml'#DO NOT PASS
 graph = make_basic_graph_from_file('telemannfantasie1.xml')
 data = json_graph.node_link_data(graph)
+print("data is:",type(data))
+#print(data)
 key = 'A'
 #Grouping and offset should be joined into 1 variable ideally - grouping
 #refers to measure index, while offset refers to note index
 grouping = [1, 5, 11, 27, 37, 49, 61, 75, "end"]
-offsets=[0.0, 16.0, 40.0, 104.0, 144.0, 162.0, 180.0, 201.0, "end"]
-randomwalk = make_randomwalk_json(graph, mnet.strto16thnote)
-
+offsets=[0.0, 16.0, 40.0, 104.0,144.0, 162.0, 180.0, 201.0, "end"]
+random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
+print("randomwalk is :", type(random_walk))
 
  
 @app.route('/') 
 def default(name=None): 
-	return render_template('index.html', data=data, filename = filename,
-										key=key, grouping = grouping,
-										offsets=offsets, randomwalk=randomwalk)   
+	return render_template('index.html', data=data, key=key, grouping = grouping,			offsets=offsets, random_walk=random_walk)   
     
 
 @app.route('/shiftEncoding', methods=['GET', 'POST'])
@@ -121,7 +125,7 @@ def shiftEncoding(name=None):
     global key
     global grouping
     global offsets
-    global randomwalk
+    global random_walk
 
 
 	#Send back filename, key, grouping and offsets
@@ -129,33 +133,32 @@ def shiftEncoding(name=None):
     print(msg)
 	#for now.....
     new_data = data
-    new_filename = filename
     new_key= key
     new_grouping = grouping
     new_offsets = offsets
-    new_randomwalk = randomwalk
+    new_randomwalk = random_walk
 
 	#Change to Grouped
     if msg == 1:
         print("grouping code executed")
         data = json_graph.node_link_data(\
-			make_grouped_graph_from_file(new_filename, new_grouping))	
+			make_grouped_graph_from_file(filename, new_grouping))	
 
 	#Change to Basic
     if msg == 2:
         data = json_graph.node_link_data(make_basic_graph_from_file(\
-				new_filename))
+				filename))
 
 	#Change to Roman Numeral -- this is very slow, I need to optimize code
     if msg == 3:
         data = json_graph.node_link_data(\
-			make_roman_numeral_graph_from_file(new_filename, new_key))
+			make_roman_numeral_graph_from_file(filename, new_key))
 
 	#Changed to Group Roman Numeral
     if msg ==4:
         data = json_graph.node_link_data(\
 			make_grouped_rn_graph_from_file(\
-				new_filename, new_offsets, new_key))
+				filename, new_offsets, new_key))
 
     return jsonify(data = data)
 	#return render_template('index.html', data=json_data)
@@ -168,7 +171,11 @@ def success():
 
 		#parse and render data with "Basic" default
         global data
-		 
+        global filename
+        global random_walk
+        global grouping
+        global offsets
+        global key
         f.save("../library/"+f.filename)
         s = music21.corpus.parse(f.filename)
         for section in s:
@@ -178,9 +185,22 @@ def success():
         topline_notes =list(topline.recurse().notes)
         nodelst_basic=mnet.convert_basic(topline_notes)
         g_basic=mnet.create_graph(nodelst_basic)
-        data = json_graph.node_link_data( mnet.convert_to_weighted(g_basic))  
-        return render_template("index.html", data=data)  
+        #define globals
 
+        data = json_graph.node_link_data( mnet.convert_to_weighted(g_basic)) 
+        filename = f.filename
+        randomwalk = make_randomwalk_json(g_basic, mnet.strto16thnote)
+        print("code in success executed") 
+        return render_template('index.html',
+								  data=data, \
+                                  key=key, grouping = grouping,\
+                                  offsets=offsets, random_walk=random_walk) 
+
+@app.route('/changeparams', methods = ['POST'])
+def changeparams():
+    global data
+    return render_template("index.html", data=data)
+	
 if __name__ == '__main__':
    app.run(debug = True)
 
