@@ -31,6 +31,9 @@ music21.corpus.cacheMetadata()
 '''
 ***************
 Define Functions
+
+Create graphs based on the currently used piece (filename)
+Generate Random walk from a graph and a given encoding
 ****************
 '''
 #Can apply to any file in ../library
@@ -87,15 +90,24 @@ def make_randomwalk_json(graph, encoding_method):
     randomwalk=mnet.generate_randomwalk(graph)
     tune = encoding_method(randomwalk)
     rwlst = []
-    for note in tune:
-        rwlst.append({"note" : note.pitch.nameWithOctave, \
-        "duration": note.duration.quarterLength*1000})
+	#turn into dictionary with each note having 3 features: 
+    # note -> pitch to be played
+    # duration -> length of pitch
+    # id -> name of node on graph
+    # Community label should also be added
+    for i in range(len(tune)):
+        rwlst.append({"note" : tune[i].pitch.nameWithOctave, \
+        			  "duration": tune[i].duration.quarterLength*1000\
+					  "id": randomwalk[i]})
     return rwlst
 
 '''
 ****************************************
-Set Default Values and Define Parameters 
-Can be passed into Observable
+Set Default Global Values and Define Parameters 
+Can be passed into Observable or 
+manipulated directly. 
+
+TODO: implement encoding 
 ****************************************
 '''
 filename = 'telemannfantasie1.xml'#DO NOT PASS
@@ -111,12 +123,23 @@ offsets=[0.0, 16.0, 40.0, 104.0,144.0, 162.0, 180.0, 201.0, "end"]
 random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
 print("randomwalk is :", type(random_walk))
 
- 
+'''
+*****************************************
+App Routing Section. 
+Executes python functions when called by the user.
+Very important to include reference to global variable 
+in the beginning of each app routing function
+*****************************************
+'''
+
+#homepage
 @app.route('/') 
 def default(name=None): 
 	return render_template('index.html', data=data, key=key, grouping = grouping,			offsets=offsets, random_walk=random_walk)   
-    
 
+    
+#Regenerates the graph based on the currently used 
+#file and the desired graph encoding scheme
 @app.route('/shiftEncoding', methods=['GET', 'POST'])
 def shiftEncoding(name=None):
 
@@ -147,9 +170,9 @@ def shiftEncoding(name=None):
         random_walk = make_randomwalk_json(graph, mnet.group_strto16thnote)
 	#Change to Basic
     if msg == 2:
-        data = json_graph.node_link_data(make_basic_graph_from_file(\
-				filename))
-
+        graph = make_basic_graph_from_file(filename)
+        data = json_graph.node_link_data(graph)
+        random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
 	#Change to Roman Numeral -- this is very slow, I need to optimize code
     if msg == 3:
         data = json_graph.node_link_data(\
@@ -164,6 +187,10 @@ def shiftEncoding(name=None):
     return jsonify(data = data, random_walk = random_walk)
 	#return render_template('index.html', data=json_data)
 
+
+#Reads user file and saves as 'filename'
+#Returns new "Basic" encoding graph and random walk
+#based on the user's file 
 @app.route('/success', methods = ['POST'])  
 def success():  
     if request.method == 'POST': 
@@ -188,6 +215,9 @@ def success():
                                   key=key, grouping = grouping,\
                                   offsets=offsets, random_walk=random_walk) 
 
+#TODO: implement this
+#Reads in additional parameters supplied by user.
+#If applicable, changes graph and random walk accordingly
 @app.route('/changeparams', methods = ['POST'])
 def changeparams():
     if request.method == 'POST':
