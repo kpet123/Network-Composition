@@ -26,8 +26,8 @@ app = Flask(__name__)
 Set up local corpus
 '''
 localCorpus = music21.corpus.corpora.LocalCorpus()
-localCorpus.addPath('library/')
-#music21.corpus.cacheMetadata()
+localCorpus.addPath('../library/')
+music21.corpus.cacheMetadata()
 
 '''
 ***************
