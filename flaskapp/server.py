@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 #general imports
 import music21
 import networkx as nx
+import igraph as ig
 import matplotlib.pyplot as plt
 import numpy as np
 import mnet
@@ -25,8 +26,8 @@ app = Flask(__name__)
 Set up local corpus
 '''
 localCorpus = music21.corpus.corpora.LocalCorpus()
-localCorpus.addPath('../library')
-music21.corpus.cacheMetadata()
+localCorpus.addPath('library/')
+#music21.corpus.cacheMetadata()
 
 '''
 ***************
@@ -101,6 +102,43 @@ def make_randomwalk_json(graph, encoding_method):
 					  "id": randomwalk[i]})
     return rwlst
 
+def make_communities(graph, method): #networkx graph object, string
+    if method == "infomap":
+        # convert to igraph
+        g = ig.Graph.TupleList(graph.edges(), directed=True)
+        for edge in g.es:
+            src = g.vs[edge.tuple[0]]['name']
+            tgt = g.vs[edge.tuple[1]]['name']
+            weight = graph.get_edge_data(src, tgt)['weight']
+            edge['weight'] = weight
+        # run infomap
+        infomap_partition = g.community_infomap(edge_weights='weight')
+        infomap_partition_assignment = {g.vs[i]['name'] : infomap_partition.membership[i] 
+                        for i in range(len(g.vs))}
+        
+        return infomap_partition_assignment
+    
+    elif method == "LPM":
+        #WIP
+        # convert to igraph
+        g = ig.Graph.TupleList(graph.edges(), directed=True)
+        # run LPM
+        lpm_partition = g.community_label_propagation(weights=None)
+        lpm_partition_list = lpm_partition.membership
+        
+        return lpm_partition_list
+
+    else:
+        # change later, when have more methods decided on
+        pass
+
+def helper_community_detection(graph, method):
+    partition_data = make_communities(graph, method)
+    for note in graph.nodes:
+        graph.nodes[note]['comm_{}'.format(method)] = partition_data[note]
+
+    return graph
+
 '''
 ****************************************
 Set Default Global Values and Define Parameters 
@@ -112,6 +150,7 @@ TODO: implement encoding
 '''
 filename = 'telemannfantasie1.xml'#DO NOT PASS
 graph = make_basic_graph_from_file('telemannfantasie1.xml')
+graph = helper_community_detection(graph, 'infomap')
 data = json_graph.node_link_data(graph)
 print("data is:",type(data))
 #print(data)
