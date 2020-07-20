@@ -45,12 +45,12 @@ def make_basic_graph_from_file(filename):
         print(t)
         if t == music21.stream.Part or t == music21.stream.PartStaff:
             topline = section
-            break;
+            break
 			#ideally throw error if there is no part, need to reupload file
     topline_notes =list(topline.recurse().notes)
     nodelst_basic=mnet.convert_basic(topline_notes)
     g_basic=mnet.create_graph(nodelst_basic)
-    data = mnet.convert_to_weighted(g_basic)
+    data = mnet.convert_to_weighted(g_basic, fraction=False)
     return data
 
 def make_grouped_graph_from_file(filename, grouping):
@@ -59,7 +59,7 @@ def make_grouped_graph_from_file(filename, grouping):
         if type(section)==music21.stream.Part:
             print(section)
             tl = section
-            break;
+            break
 			#ideally throw error if there is no part, need to reupload file
     print("topline is ", tl)
     topline_notes =list(tl.recurse().notes)
@@ -103,6 +103,8 @@ def make_randomwalk_json(graph, encoding_method):
     return rwlst
 
 def make_communities(graph, method): #networkx graph object, string
+    # options are: infomap, LPM, louvain (high), HLC (Hiearchical Link Clustering), 
+
     if method == "infomap":
         # convert to igraph
         g = ig.Graph.TupleList(graph.edges(), directed=True)
@@ -119,18 +121,35 @@ def make_communities(graph, method): #networkx graph object, string
         return infomap_partition_assignment
     
     elif method == "LPM":
-        #WIP
         # convert to igraph
         g = ig.Graph.TupleList(graph.edges(), directed=True)
-        # run LPM
-        lpm_partition = g.community_label_propagation(weights=None)
-        lpm_partition_list = lpm_partition.membership
+        for edge in g.es:
+            src = g.vs[edge.tuple[0]]['name']
+            tgt = g.vs[edge.tuple[1]]['name']
+            weight = graph.get_edge_data(src, tgt)['weight']
+            edge['weight'] = weight
+        # run lpm
+        lpm_partition = g.community_label_propagation(weights='weight')
+        lpm_partition_assignment = {g.vs[i]['name'] : lpm_partition.membership[i] 
+                        for i in range(len(g.vs))}
         
-        return lpm_partition_list
-
-    else:
-        # change later, when have more methods decided on
-        pass
+        return lpm_partition_assignment
+    
+    elif method == 'louvain':
+        # convert to igraph
+        g = ig.Graph.TupleList(graph.edges(), directed=False)
+        for edge in g.es:
+            src = g.vs[edge.tuple[0]]['name']
+            tgt = g.vs[edge.tuple[1]]['name']
+            weight = graph.get_edge_data(src, tgt)['weight']
+            edge['weight'] = weight
+            print(weight)
+        # run louvain
+        louvain_partition = g.community_multilevel(weights=[e['weight'] for e in g.es])
+        louvain_partition_assignment = {g.vs[i]['name'] : louvain_partition.membership[i] 
+                        for i in range(len(g.vs))}
+        
+        return louvain_partition_assignment
 
 def helper_community_detection(graph, method):
     partition_data = make_communities(graph, method)
@@ -149,12 +168,20 @@ TODO: implement encoding
 ****************************************
 '''
 filename = 'telemannfantasie1.xml'#DO NOT PASS
+key = 'A'
 graph = make_basic_graph_from_file('telemannfantasie1.xml')
+
+# DEBUG
+# Different encoding to chick triviality of community assignment
+graph = make_roman_numeral_graph_from_file(filename, key) 
+
+
 graph = helper_community_detection(graph, 'infomap')
+graph = helper_community_detection(graph, 'LPM')
 data = json_graph.node_link_data(graph)
 print("data is:",type(data))
 #print(data)
-key = 'A'
+
 #Grouping and offset should be joined into 1 variable ideally - grouping
 #refers to measure index, while offset refers to note index
 grouping = [1, 5, 11, 27, 37, 49, 61, 75, "end"]
