@@ -97,7 +97,7 @@ def make_randomwalk_json(graph, encoding_method):
     # Community label should also be added
     for i in range(len(tune)):
         rwlst.append({"note" : tune[i].pitch.nameWithOctave, \
-        			  "duration": tune[i].duration.quarterLength*1000\
+        			  "duration": tune[i].duration.quarterLength*1000,\
 					  "id": randomwalk[i]})
     return rwlst
 
