@@ -102,36 +102,40 @@ def make_randomwalk_json(graph, encoding_method):
 					  "id": randomwalk[i]})
     return rwlst
 
-def make_communities(graph, method): #networkx graph object, string
-    # options are: infomap, LPM, louvain (high), HLC (Hiearchical Link Clustering), 
+def make_communities(g, method): 
+    '''
+    Helper function to route graph and method to correct community detection
+
+    Inputs:
+        g : networkx object
+            Networkx network object representing raw music data
+        method : string
+            String identifying clustering method to be used.
+            Options are (case-sensitive):
+                1) infomap
+                2) LPM
+                3) HLC
+                4) louvain
+                5) 
+    Returns:
+        graph : networkx object
+            Networkx network object with added community data
+    '''
+    
 
     if method == "infomap":
-        # convert to igraph
-        g = ig.Graph.TupleList(graph.edges(), directed=True)
-        for edge in g.es:
-            src = g.vs[edge.tuple[0]]['name']
-            tgt = g.vs[edge.tuple[1]]['name']
-            weight = graph.get_edge_data(src, tgt)['weight']
-            edge['weight'] = weight
         # run infomap
         infomap_partition = g.community_infomap(edge_weights='weight')
         infomap_partition_assignment = {g.vs[i]['name'] : infomap_partition.membership[i] 
-                        for i in range(len(g.vs))}
+                        for i in range(g.vcount())}
         
         return infomap_partition_assignment
     
     elif method == "LPM":
-        # convert to igraph
-        g = ig.Graph.TupleList(graph.edges(), directed=True)
-        for edge in g.es:
-            src = g.vs[edge.tuple[0]]['name']
-            tgt = g.vs[edge.tuple[1]]['name']
-            weight = graph.get_edge_data(src, tgt)['weight']
-            edge['weight'] = weight
         # run lpm
         lpm_partition = g.community_label_propagation(weights='weight')
         lpm_partition_assignment = {g.vs[i]['name'] : lpm_partition.membership[i] 
-                        for i in range(len(g.vs))}
+                        for i in range(g.vcount())}
         
         return lpm_partition_assignment
     
@@ -152,7 +156,40 @@ def make_communities(graph, method): #networkx graph object, string
         return louvain_partition_assignment
 
 def helper_community_detection(graph, method):
-    partition_data = make_communities(graph, method)
+    '''
+    Helper function to route graph and method to correct community detection
+
+    Inputs:
+        graph : networkx object
+            Networkx network object representing raw music data
+        method : string
+            String identifying clustering method to be used
+            Options are (case-sensitive):
+                1) infomap
+                2) LPM
+                3) HLC
+                4) louvain
+                5) 
+    Returns:
+        graph : networkx object
+            Networkx network object with added community data
+    '''
+
+    # igraph methods' conversion
+    if method == 'infomap' or method == 'LPM':
+        g = ig.Graph.TupleList(graph.edges(), directed=True)
+        for edge in g.es:
+            src = g.vs[edge.tuple[0]]['name']
+            tgt = g.vs[edge.tuple[1]]['name']
+            edge['weight'] = graph.get_edge_data(src, tgt)['weight']
+
+        partition_data = make_communities(g, method)
+    
+    # networkx native methods
+    else:
+        partition_data = make_communities(graph, method)
+    
+    # add partition data to graph object
     for note in graph.nodes:
         graph.nodes[note]['comm_{}'.format(method)] = partition_data[note]
 
@@ -175,9 +212,10 @@ graph = make_basic_graph_from_file('telemannfantasie1.xml')
 # Different encoding to chick triviality of community assignment
 graph = make_roman_numeral_graph_from_file(filename, key) 
 
-
+# community assignment, will clean up once decided on all algorithms
 graph = helper_community_detection(graph, 'infomap')
 graph = helper_community_detection(graph, 'LPM')
+
 data = json_graph.node_link_data(graph)
 print("data is:",type(data))
 #print(data)
