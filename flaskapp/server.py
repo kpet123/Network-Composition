@@ -173,13 +173,13 @@ graph = make_basic_graph_from_file('telemannfantasie1.xml')
 
 # DEBUG
 # Different encoding to chick triviality of community assignment
-graph = make_roman_numeral_graph_from_file(filename, key) 
+#graph = make_roman_numeral_graph_from_file(filename, key) 
 
 
-graph = helper_community_detection(graph, 'infomap')
-graph = helper_community_detection(graph, 'LPM')
+#graph = helper_community_detection(graph, 'infomap')
+#graph = helper_community_detection(graph, 'LPM')
 data = json_graph.node_link_data(graph)
-print("data is:",type(data))
+#print("data is:",type(data))
 #print(data)
 
 #Grouping and offset should be joined into 1 variable ideally - grouping
