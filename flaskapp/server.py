@@ -104,7 +104,7 @@ def make_randomwalk_json(graph, encoding_method):
 
 def make_communities(g, method): 
     '''
-    Helper function to route graph and method to correct community detection
+    Function to run community detection
 
     Inputs:
         g : networkx object
@@ -176,8 +176,12 @@ def helper_community_detection(graph, method):
     '''
 
     # igraph methods' conversion
-    if method == 'infomap' or method == 'LPM':
-        g = ig.Graph.TupleList(graph.edges(), directed=True)
+    if method == 'infomap' or method == 'LPM' or method == 'louvain':
+        if method == 'louvain':
+            # Note louvain does not apply for directed networks, be wary of the results!
+            g = ig.Graph.TupleList(graph.edges(), directed=False)
+        else:
+            g = ig.Graph.TupleList(graph.edges(), directed=True)
         for edge in g.es:
             src = g.vs[edge.tuple[0]]['name']
             tgt = g.vs[edge.tuple[1]]['name']
@@ -213,8 +217,8 @@ graph = make_basic_graph_from_file('telemannfantasie1.xml')
 graph = make_roman_numeral_graph_from_file(filename, key) 
 
 # community assignment, will clean up once decided on all algorithms
-graph = helper_community_detection(graph, 'infomap')
-graph = helper_community_detection(graph, 'LPM')
+#graph = helper_community_detection(graph, 'infomap')
+#graph = helper_community_detection(graph, 'LPM')
 
 data = json_graph.node_link_data(graph)
 print("data is:",type(data))
@@ -290,6 +294,32 @@ def shiftEncoding(name=None):
 
     return jsonify(data = data, random_walk = random_walk)
 	#return render_template('index.html', data=json_data)
+
+@app.route('/shiftCommunity', methods=['GET', 'POST'])
+def shiftCommunity(name=None):
+
+	#referencing outside variables to pass
+    global data
+    global graph
+
+	#Send back filename, key, grouping and offsets
+    msg = request.get_json()
+    new_data = data
+
+	#Change to Infomap
+    if msg == 0:
+        graph = helper_community_detection(graph, 'infomap')
+        data = json_graph.node_link_data(graph)
+	#Change to LPM
+    if msg == 1:
+        graph = helper_community_detection(graph, 'LPM')
+        data = json_graph.node_link_data(graph)
+	
+    return jsonify(data = data)
+	
+
+
+
 
 
 #Reads user file and saves as 'filename'

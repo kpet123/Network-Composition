@@ -180,6 +180,9 @@ def generate_randomwalk(g):
 def strto16thnote(randomwalk):
     notelist = []
     for string in randomwalk:
+        # ADD BY DANIEL
+        if ' ' in string:
+            string = string.split(' ')[0]
         n = music21.note.Note(string)
         n.duration.quarterLength = .25
         notelist.append(n)
