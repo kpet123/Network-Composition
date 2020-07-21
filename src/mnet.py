@@ -9,13 +9,21 @@ import numpy as np
 import random
 import queue
 
-
+'''
+*******************
+General Functions
+*******************
+'''
 #given note in stream, returns measure
 def getMeasureFromNote(note_in_stream):
     return str(note_in_stream.activeSite).split()[1]
 
+'''
+*******************
 #Conversion Functions: turn list of notes into list of nodes
-
+Also return pitchdict, used later to assign pitches to the graph
+*******************
+'''
 '''
 *** convert_basic ***
 
@@ -27,11 +35,29 @@ Return:
 	nodelst - list of nodes
  
 '''
-def convert_basic(lst):
+#def convert_basic(lst):
 
-		convert_note = lambda x: x.name+str(x.octave)
-		nodelst = list(map(convert_note, lst))
-		return nodelst
+#		convert_note = lambda x: x.name+str(x.octave)
+#		nodelst = list(map(convert_note, lst))
+#		pitchdict = dict((zip(nodelst, nodelst)))
+#		return nodelst, pitchdict
+
+def convert_basic(lst):
+    nodelst=[]
+    convert_note = lambda x: x.name+str(x.octave)
+    for note in lst:
+        node=note
+        if type(note) == music21.chord.Chord :
+            node = convert_note(max(note.pitches))
+        elif type(note) == music21.note.Note:
+            node = convert_note(note)
+        else:
+            print("ERROR UNHANDLED TYPE ", type(note))
+        nodelst.append(node)
+            
+    pitchdict = dict((zip(nodelst, nodelst)))
+    return nodelst, pitchdict
+
 '''
 *** convert_grouping ***
 
@@ -46,9 +72,35 @@ Return:
  
 '''
 
+#def convert_grouping(lst, grouping):
+#    convert_note = lambda x: x.name+str(x.octave)
+#    pitchdict = {}
+#    nodelst=[] #list to store nodes
+#    #add first node
+#    transition_lst=[]
+#    i=0
+#    g=0
+#    node_group=grouping[g]
+#    while i < len(lst):
+#        note = lst[i]
+#        node_id = convert_note(note)
+#        #print(getMeasureFromNote(note))
+#        if getMeasureFromNote(note) == str(grouping[g]):
+#            node_group = grouping[g]
+#            g+=1
+#            if i !=0:
+#                transition_lst.append((nodelst[i-1],\
+#                     str(node_group)+"_"+str(node_id)))
+#        node = str(node_group)+"_"+str(node_id)
+#        nodelst.append(node)
+#        pitchdict[node]= str(node_id)
+#        i +=1
+#    return nodelst, transition_lst, pitchdict
+
+
 def convert_grouping(lst, grouping):
     convert_note = lambda x: x.name+str(x.octave)
-
+    pitchdict = {}
     nodelst=[] #list to store nodes
     #add first node
     transition_lst=[]
@@ -57,21 +109,28 @@ def convert_grouping(lst, grouping):
     node_group=grouping[g]
     while i < len(lst):
         note = lst[i]
-        node_id = convert_note(note)
+        if type(note) == music21.chord.Chord :
+            node_id = convert_note(max(note.pitches))
+        elif type(note) == music21.note.Note:
+            node_id = convert_note(note)
+        else:
+            print("ERROR UNHANDLED TYPE ", type(note))
+
         #print(getMeasureFromNote(note))
         if getMeasureFromNote(note) == str(grouping[g]):
             node_group = grouping[g]
             g+=1
             if i !=0:
                 transition_lst.append((nodelst[i-1],\
-                     str(node_group)+" "+str(node_id)))
-        node = str(node_group)+" "+str(node_id)
+                     str(node_group)+"_"+str(node_id)))
+        node = str(node_group)+"_"+str(node_id)
         nodelst.append(node)
+        pitchdict[node]= str(node_id)
         i +=1
-    return nodelst, transition_lst
+    return nodelst, transition_lst, pitchdict
 
 def convert_chord_note(chord_lst, key):
-    
+    pitchdict = {}
     nodelst=[]
     for chord in chord_lst:
         #extract melody
@@ -80,15 +139,17 @@ def convert_chord_note(chord_lst, key):
         harm = chord.remove(mel)
         rn = music21.roman.romanNumeralFromChord(chord, music21.key.Key(key))
         rn=str(rn).split()[1]
-        nodelst.append(str(mel)+" "+rn)
-    return nodelst
+        node = str(mel)+"_"+rn
+        nodelst.append(node)
+        pitchdict[node] = str(mel)    
+    return nodelst, pitchdict
 
 
 '''
 conversion with roman numerals and groups
 '''
 def convert_grouped_rn(chord_lst, offsets, key):
-    
+    pitchdict = {}
     nodelst=[]
     transition_lst=[]
     i=0
@@ -118,19 +179,23 @@ def convert_grouped_rn(chord_lst, offsets, key):
             g+=1
             if i !=0:
                 transition_lst.append((nodelst[i-1],\
-                     str(mel)+" "+rn+" "+str(node_group)))
+                     str(mel)+"_"+rn+"_"+str(node_group)))
                 
-        node = str(mel)+" "+rn+" "+str(node_group)
+        node = str(mel)+"_"+rn+"_"+str(node_group)
         nodelst.append(node)
+        pitchdict[node]=str(mel)
         i +=1
         
 
-    return nodelst, transition_lst
+    return nodelst, transition_lst, pitchdict
 
 
-
-
+'''
+*******************
 #Create graph using nodelist and groups
+*******************
+'''
+
 def create_graph(nodelst):
     g = nx.MultiDiGraph()
 
@@ -142,7 +207,6 @@ def create_graph(nodelst):
         #creates directed edge from previous note to current note   
         g.add_edge(nodelst[i-1], curNode) 
         i +=1
-  
     #add start and end nodes
     g.add_edge("start", nodelst[0])
     
@@ -158,7 +222,12 @@ def create_graph(nodelst):
 
 
 
-#Generates random walk from graph
+'''
+*******************
+Generate random walk from graph
+*******************
+'''
+
 def generate_randomwalk(g):
     get_neighbor = lambda x: x[1]
     randomwalk =[]
@@ -175,8 +244,14 @@ def generate_randomwalk(g):
 
     
 
-#Functions that convert node to notelist
 
+'''
+*******************
+Functions that convert randomwalk to list of music21 notes
+*******************
+'''
+
+#for basic graph w/o communities
 def strto16thnote(randomwalk):
     notelist = []
     for string in randomwalk:
@@ -186,6 +261,7 @@ def strto16thnote(randomwalk):
     return notelist
 
 
+#for forced grouping graph w/o communities
 def group_strto16thnote(randomwalk):
     notelist = []
     i=0
@@ -196,10 +272,10 @@ def group_strto16thnote(randomwalk):
         string = randomwalk[i]
         #print(string)
         #note pitch
-        notestr=string.split()[1]
+        notestr=string.split("_")[1]
         n = music21.note.Note(notestr)
         group_cur = string.split()[0]
-        group_next = randomwalk[i+1].split()[0]
+        group_next = randomwalk[i+1].split("_")[0]
         #note duration
         if group_cur !=group_next:
             n.duration.quarterLength =2
@@ -211,6 +287,7 @@ def group_strto16thnote(randomwalk):
         i +=1
     return notelist
 
+#Roman numeral graph w/o communities, produces melody and harmony
 def str_rn_full(randomwalk):
     harmlst=[]
     mellst = []
@@ -231,16 +308,14 @@ def str_rn_full(randomwalk):
 
 
 
-'''
-Node to string function that returns melody and list of communities
-'''
+#Roman numeral graph, labels communities
 def str_rn_annotated(randomwalk, nodeToGroup_dict):
 
     mellst = []
     lyriclst = []
     for node in randomwalk:
 
-        mel = node.split()[0]
+        mel = node.split("_")[0]
         n = music21.note.Note(mel)
         n.duration.quarterLength =.5
         lyric= nodeToGroup_dict[node]
@@ -251,9 +326,7 @@ def str_rn_annotated(randomwalk, nodeToGroup_dict):
   
     return mellst, lyriclst
 
-'''
-Just melody
-'''
+#Roman numeral graph, just melody w/o communities
 def str_rn(randomwalk):
 
     mellst = []
@@ -281,7 +354,7 @@ def str_rn_group(randomwalk):
     while i < len(randomwalk)-1:
         
         #print(i)
-        string = randomwalk[i].split()
+        string = randomwalk[i].split("_")
         #print(string)
         #note pitch
         notestr=string[0]

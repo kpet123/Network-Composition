@@ -37,56 +37,82 @@ Create graphs based on the currently used piece (filename)
 Generate Random walk from a graph and a given encoding
 ****************
 '''
-#Can apply to any file in ../library
+#Graph making functions - can apply to any file in ../library
+
+
+#basic graph, returns multiedge graph and pitch dictionary
 def make_basic_graph_from_file(filename):
     s = music21.corpus.parse(filename)
     for section in s:
         t=type(section)
+        print("In basic section")
         print(t)
         if t == music21.stream.Part or t == music21.stream.PartStaff:
             topline = section
             break
 			#ideally throw error if there is no part, need to reupload file
     topline_notes =list(topline.recurse().notes)
-    nodelst_basic=mnet.convert_basic(topline_notes)
+    nodelst_basic, pitchdict =mnet.convert_basic(topline_notes)
     g_basic=mnet.create_graph(nodelst_basic)
-    data = mnet.convert_to_weighted(g_basic, fraction=False)
-    return data
+ 
+    return g_basic, pitchdict
+
+
+#grouped graph, returns multiedge graph and pitch dictionary
 
 def make_grouped_graph_from_file(filename, grouping):
     s = music21.corpus.parse(filename)
     for section in s:
-        if type(section)==music21.stream.Part:
-            print(section)
-            tl = section
+        t=type(section)
+        print("In Grouped checking stream")
+        print(t)
+        if t == music21.stream.Part or t == music21.stream.PartStaff:
+            topline = section
             break
-			#ideally throw error if there is no part, need to reupload file
-    print("topline is ", tl)
-    topline_notes =list(tl.recurse().notes)
-    nodelst_group, transition_edges= \
-    		mnet.convert_grouping(topline_notes, grouping)
-    g_group=mnet.create_graph(nodelst_group)
-    data = mnet.convert_to_weighted(g_group)
-    return data
+            #ideally throw error if there is no part, need to reupload file
+    topline_notes =list(topline.recurse().notes)
+    nodelst_grouped, transition_lst, pitchdict =mnet.convert_grouping(\
+					topline_notes, grouping)
 
+    print("transition list is ", transition_lst)
+    g_group=mnet.create_graph(nodelst_grouped)
+ 
+
+    return g_group, pitchdict
+
+
+
+#RN graph, returns multiedge graph and pitch dictionary
 def make_roman_numeral_graph_from_file(filename, key):
 	s = music21.corpus.parse(filename)
 	chord_lst = list(s.chordify().recurse().notes)
-	nodelst = mnet.convert_chord_note(chord_lst, key)
+	nodelst, pitchdict  = mnet.convert_chord_note(chord_lst, key)
 	g_rn=mnet.create_graph(nodelst)
-	data = mnet.convert_to_weighted(g_rn)
-	print("roman numeral converted")	
-	return data
 
+	print("roman numeral converted")	
+	return g_rn, pitchdict
+
+#Grouped RN graph, returns multiedge graph + pitch labels
 def make_grouped_rn_graph_from_file(filename, offsets, key):
+ 
     s = music21.corpus.parse(filename)
     chord_lst = s.flat.chordify().recurse().notes
-    nodelst_group, transition_edges=mnet.convert_grouped_rn(chord_lst,\
-             offsets, key)
+    nodelst_group, transition_edges, pitchdict=mnet.convert_grouped_rn(\
+				chord_lst,offsets, key)
     g_group=mnet.create_graph(nodelst_group)
-    data = mnet.convert_to_weighted(g_group)
-    return data
+ 
+    return g_group, pitchdict
 
+#Other Functions:
+
+
+#Turns multiedge graph into weighted graph with pitch labels
+def make_visualizable_graph(graph, pitchdict):
+    weighted_graph = mnet.convert_to_weighted(graph, False)
+    nx.set_node_attributes(weighted_graph, pitchdict, "pitch")
+    return weighted_graph 
+
+#Makes randomwalk json
 def make_randomwalk_json(graph, encoding_method):
     randomwalk=mnet.generate_randomwalk(graph)
     tune = encoding_method(randomwalk)
@@ -153,6 +179,7 @@ def make_communities(graph, method): #networkx graph object, string
 
 def helper_community_detection(graph, method):
     partition_data = make_communities(graph, method)
+    print(partition_data)
     for note in graph.nodes:
         graph.nodes[note]['comm_{}'.format(method)] = partition_data[note]
 
@@ -169,7 +196,16 @@ TODO: implement encoding
 '''
 filename = 'telemannfantasie1.xml'#DO NOT PASS
 key = 'A'
-graph = make_basic_graph_from_file('telemannfantasie1.xml')
+graph, pitchdict = make_basic_graph_from_file('telemannfantasie1.xml')
+
+#Random walk implementation needs MultiDigraph to work
+#Do not convert to weighted graph before generating random walk
+random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
+
+#Convert graph to weighted graph with pitch names
+data = json_graph.node_link_data(make_visualizable_graph(graph, pitchdict) )
+	
+
 
 # DEBUG
 # Different encoding to chick triviality of community assignment
@@ -178,7 +214,7 @@ graph = make_basic_graph_from_file('telemannfantasie1.xml')
 
 #graph = helper_community_detection(graph, 'infomap')
 #graph = helper_community_detection(graph, 'LPM')
-data = json_graph.node_link_data(graph)
+#data = json_graph.node_link_data(graph)
 #print("data is:",type(data))
 #print(data)
 
@@ -186,9 +222,10 @@ data = json_graph.node_link_data(graph)
 #refers to measure index, while offset refers to note index
 grouping = [1, 5, 11, 27, 37, 49, 61, 75, "end"]
 offsets=[0.0, 16.0, 40.0, 104.0,144.0, 162.0, 180.0, 201.0, "end"]
-random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
 print("randomwalk is :", type(random_walk))
 
+#Current graph encoding, use to recalculate graph 
+cur_graph_encoding = "basic"
 '''
 *****************************************
 App Routing Section. 
@@ -216,8 +253,8 @@ def shiftEncoding(name=None):
     global grouping
     global offsets
     global random_walk
-
-
+    global cur_graph_encoding
+    print("Filename is ", filename)
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
     print(msg)
@@ -231,25 +268,44 @@ def shiftEncoding(name=None):
 	#Change to Grouped
     if msg == 1:
         print("grouping code executed")
-        graph = make_grouped_graph_from_file(filename, new_grouping)
-        data = json_graph.node_link_data(graph)	
+        graph, pitchdict = make_grouped_graph_from_file(\
+				filename, new_grouping)
+
+		#create wieghted graph so weights will show up in visual
+        data = json_graph.node_link_data(make_visualizable_graph(\
+							graph, pitchdict) )
+        print("grouped graph data created")
+		#create random walk with multiedge graph
         random_walk = make_randomwalk_json(graph, mnet.group_strto16thnote)
+
+        #update cur_graph_encoding
+        cur_graph_encoding = "grouped"
 	#Change to Basic
     if msg == 2:
-        graph = make_basic_graph_from_file(filename)
-        data = json_graph.node_link_data(graph)
+        graph, pitchdict = make_basic_graph_from_file(filename)
+        data = json_graph.node_link_data(make_visualizable_graph(\
+							graph, pitchdict) )
         random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
+
+        #update cur_graph_encoding
+        cur_graph_encoding = "basic"
 	#Change to Roman Numeral -- this is very slow, I need to optimize code
     if msg == 3:
-        data = json_graph.node_link_data(\
-			make_roman_numeral_graph_from_file(filename, new_key))
+        graph, pitchdict = make_roman_numeral_graph_from_file(\
+					filename, new_key)
+        data = json_graph.node_link_data(make_visualizable_graph(\
+							graph, pitchdict) )
+	     
+        random_walk = make_randomwalk_json(graph, mnet.str_rn)
 
 	#Changed to Group Roman Numeral
     if msg ==4:
-        graph = make_grouped_rn_graph_from_file(filename, \
+        graph, pitchdict = make_grouped_rn_graph_from_file(filename, \
 						new_offsets, new_key)
-        data = json_graph.node_link_data(graph)
+        data = make_visualizable_graph(graph, pitchdict)
+    
 
+    #Return data through javascript function
     return jsonify(data = data, random_walk = random_walk)
 	#return render_template('index.html', data=json_data)
 
@@ -272,8 +328,10 @@ def success():
         global key
         f.save("../library/"+f.filename)
         filename = f.filename
-        graph = make_basic_graph_from_file(filename)
-        data = json_graph.node_link_data(graph) 
+
+        graph, pitchdict = make_basic_graph_from_file(filename)
+        data = json_graph.node_link_data(make_visualizable_graph(\
+                            graph, pitchdict) )
         random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
         print("code in success executed") 
         return render_template('index.html',
