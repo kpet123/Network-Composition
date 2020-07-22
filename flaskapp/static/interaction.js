@@ -93,9 +93,11 @@ $(document).ready(function(){
 		
 		//$("#data_test").append(data)
 		//console.log(data);
-	
+		});
+
 	// Community buttons
 	$("#infomap_vis").click(function() {
+        console.log("in infomap");
         console.log(data);
         change_community(0)
 	});

@@ -107,7 +107,7 @@ def make_graph_from_file(filename, encoding, key, offsets, grouping):
 
 #Turns multiedge graph into weighted graph with pitch labels
 def make_visualizable_graph(graph, pitchdict):
-    weighted_graph = mnet.convert_to_weighted(graph, False)
+    #weighted_graph = mnet.convert_to_weighted(graph, False)
     nx.set_node_attributes(weighted_graph, pitchdict, "pitch")
     return weighted_graph 
 
@@ -246,7 +246,8 @@ key = 'A'
 #Current graph encoding, use to recalculate graph 
 cur_graph_encoding = "basic"
 
-
+#Community designator
+cur_community = "infomap" 
 
 #Current random walk encoding, determines rhythm for random walk
 cur_walk_encoding = mnet.strto16thnote
@@ -263,8 +264,13 @@ graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
 #Do not convert to weighted graph before generating random walk
 random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
 
+#add communities
+community_graph = helper_community_detection(mnet.convert_to_weighted(\
+            graph, False), "infomap")
 #Convert graph to weighted graph with pitch names
-data = json_graph.node_link_data(make_visualizable_graph(graph, pitchdict) )
+
+data = json_graph.node_link_data(make_visualizable_graph(\
+            community_graph, pitchdict) )
 	
 
 print("randomwalk is :", type(random_walk))
@@ -336,7 +342,7 @@ def shiftEncoding(name=None):
 
 @app.route('/shiftCommunity', methods=['GET', 'POST'])
 def shiftCommunity(name=None):
-
+    print("in shift community")
 	#referencing outside variables to pass
     global data
     global graph
@@ -353,7 +359,7 @@ def shiftCommunity(name=None):
     if msg == 1:
         graph = helper_community_detection(graph, 'LPM')
         data = json_graph.node_link_data(graph)
-	
+    print(data)
     return jsonify(data = data)
 	
 
