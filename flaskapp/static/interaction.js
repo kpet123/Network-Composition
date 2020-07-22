@@ -58,6 +58,24 @@ error: function(request, status, error){
 }); 
 }
 
+//Upload New Data
+var upload = function() {
+   
+        var form_data = new FormData($('#upload-file')[0]);
+        $.ajax({
+            type: 'POST',
+            url: '/uploadajax',
+            data: form_data,
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(data) {
+                location.reload();
+                console.log('Success!');
+            }
+       
+    });
+};
 //in #(document).ready,  you can define responses to 
 //actions (e.g. button clicks) executed from 
 //the index.html file. To link an html action, use that action's id tag (e.g.
@@ -103,9 +121,13 @@ $(document).ready(function(){
 	});
     $("#lpm_vis").click(function() {
         console.log(data);
-        change_community(1)
+        change_community(1);
 
 
-	})
+	});
+    $('#upload-file-btn').click(function() {
+        console.log("in upload file button")
+        upload();        
+    });
 })
 

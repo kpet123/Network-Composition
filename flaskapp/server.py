@@ -105,11 +105,11 @@ def make_graph_from_file(filename, encoding, key, offsets, grouping):
 #Other Functions:
 
 
-#Turns multiedge graph into weighted graph with pitch labels
+#Input weighted community graph, add pitch labels
 def make_visualizable_graph(graph, pitchdict):
     #weighted_graph = mnet.convert_to_weighted(graph, False)
-    nx.set_node_attributes(weighted_graph, pitchdict, "pitch")
-    return weighted_graph 
+    nx.set_node_attributes(graph, pitchdict, "pitch")
+    return graph 
 
 #Makes randomwalk json
 def make_randomwalk_json(graph, encoding_method):
@@ -370,31 +370,30 @@ def shiftCommunity(name=None):
 #Reads user file and saves as 'filename'
 #Returns new "Basic" encoding graph and random walk
 #based on the user's file 
-@app.route('/success', methods = ['POST'])  
+@app.route('/uploadajax', methods = ['POST'])  
 def success():  
-    if request.method == 'POST': 
+#    if request.method == 'POST': 
 	
-        f = request.files['file'] 
+    f = request.files['file'] 
 
-		#parse and render data with "Basic" default
-        global data
-        global filename
-        global random_walk
-        global grouping
-        global offsets
-        global key
-        f.save("../library/"+f.filename)
-        filename = f.filename
-        graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
-                     key, offsets, grouping)
-        data = json_graph.node_link_data(make_visualizable_graph(\
-                     graph, pitchdict))
-        random_walk = make_randomwalk_json(graph, cur_walk_encoding)
-        print("code in success executed") 
-        return render_template('index.html',
-								  data=data, \
-                                  key=key, grouping = grouping,\
-                                  offsets=offsets, random_walk=random_walk) 
+    #parse and render data with "Basic" default
+    global data
+    global filename
+    global random_walk
+    global grouping
+    global offsets
+    global key
+    f.save("../library/"+f.filename)
+    filename = f.filename
+    graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
+                 key, offsets, grouping)
+    data = json_graph.node_link_data(make_visualizable_graph(\
+                 graph, pitchdict))
+    random_walk = make_randomwalk_json(graph, cur_walk_encoding)
+    print("code in success executed") 
+    return jsonify(data=data, raondom_walk = random_walk)
+
+
 
 #TODO: implement this
 #Reads in additional parameters supplied by user.
