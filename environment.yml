@@ -17,3 +17,4 @@ dependencies:
  - networkx
  - spyder
  - python-igraph
+ - scipy
