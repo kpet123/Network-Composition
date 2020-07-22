@@ -115,7 +115,8 @@ def convert_grouping(lst, grouping):
             node_id = convert_note(note)
         else:
             print("ERROR UNHANDLED TYPE ", type(note))
-
+        print("In convert, grouping is ", grouping)
+        print("g is ", g)
         #print(getMeasureFromNote(note))
         if getMeasureFromNote(note) == str(grouping[g]):
             node_group = grouping[g]

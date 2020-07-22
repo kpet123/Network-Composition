@@ -60,8 +60,8 @@ error: function(request, status, error){
 
 //Upload New Data
 var upload = function() {
-   
-        var form_data = new FormData($('#upload-file')[0]);
+        var form_data = new FormData($('#upload-file')[0])
+      
         $.ajax({
             type: 'POST',
             url: '/uploadajax',
@@ -72,10 +72,49 @@ var upload = function() {
             success: function(data) {
                 location.reload();
                 console.log('Success!');
-            }
-       
+            },
+        error: function(request, status, error){
+            console.log("Error");
+            console.log(request)
+            console.log(status)
+            console.log(error)
+    }
+      
     });
 };
+
+
+//Change Graph generation parameters
+var change_params = function() {
+         var form_data = {
+            key: $('#key').val(),
+            offsets: $('#offsets').val(),
+            grouping: $('#grouping').val(),
+
+         };
+         console.log("in change params function") 
+         console.log(form_data)
+         $.ajax({
+            type: 'POST',
+            url:'/changeparams',
+            data: form_data,
+        //    contentType: false,
+        //    cache: false,
+        //    processData: false,
+            success: function(data) {
+                location.reload();
+                console.log('Success!');
+            },
+         error: function(request, status, error){
+            console.log("Error");
+            console.log(request)
+            console.log(status)
+            console.log(error)
+    }
+     
+    });
+};
+
 //in #(document).ready,  you can define responses to 
 //actions (e.g. button clicks) executed from 
 //the index.html file. To link an html action, use that action's id tag (e.g.
@@ -129,5 +168,10 @@ $(document).ready(function(){
         console.log("in upload file button")
         upload();        
     });
+    $('#update-params-btn').click(  function() {
+        console.log("in change params document ready")
+        change_params();        
+    });
+ 
 })
 

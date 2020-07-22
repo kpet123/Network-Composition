@@ -400,19 +400,49 @@ def success():
 #If applicable, changes graph and random walk accordingly
 @app.route('/changeparams', methods = ['POST'])
 def changeparams():
-    if request.method == 'POST':
-        global data
-        global filename
-        global random_walk
-        global grouping
-        global offsets
-        global key  
-        return render_template('index.html',
-                                  data=data, \
-                                  key=key, grouping = grouping,\
-                                  offsets=offsets, random_walk=random_walk)
+#    if request.method == 'POST':
+    global data
+    global filename
+    global random_walk
+    global grouping
+    global offsets
+    global key  
+    
+
+    #Get requested values
+
+    grouping_str = request.form['grouping']  
+    offsets_str = request.form['offsets'] 
+    key = request.form['key']
+    
+    # Convert grouping and offsets to list of ints
+    f = lambda x: int(x)  
+    grouping = grouping_str.split()
+    grouping = list(map(f, grouping))
+    grouping.append("end")
+ 
+    offsets = offsets_str.split()
+    offsets = list(map(f, offsets))
+    offsets.append("end")
+
+    print("grouping is ", grouping)   
+    # Recalculate data and random walk
+    graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
+                 key, offsets, grouping)
+    data = json_graph.node_link_data(make_visualizable_graph(\
+                 graph, pitchdict))
+    random_walk = make_randomwalk_json(graph, cur_walk_encoding)
+
+    
+    print("Grouping is ", grouping[1])
 
 
+    return jsonify(data = data, random_walk = random_walk, \
+                grouping = grouping, key = key, offsets = offsets)
+
+
+
+ 
 if __name__ == '__main__':
    app.run(debug = True)
 
