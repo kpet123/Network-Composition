@@ -16,3 +16,5 @@ dependencies:
  - music21
  - networkx
  - spyder
+ - python-igraph
+ - scipy
