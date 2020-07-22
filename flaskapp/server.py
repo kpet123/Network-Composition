@@ -127,36 +127,40 @@ def make_randomwalk_json(graph, encoding_method):
 					  "id": randomwalk[i]})
     return rwlst
 
-def make_communities(graph, method): #networkx graph object, string
-    # options are: infomap, LPM, louvain (high), HLC (Hiearchical Link Clustering), 
+def make_communities(g, method): 
+    '''
+    Function to run community detection
+
+    Inputs:
+        g : networkx object
+            Networkx network object representing raw music data
+        method : string
+            String identifying clustering method to be used.
+            Options are (case-sensitive):
+                1) infomap
+                2) LPM
+                3) HLC
+                4) louvain
+                5) 
+    Returns:
+        graph : networkx object
+            Networkx network object with added community data
+    '''
+    
 
     if method == "infomap":
-        # convert to igraph
-        g = ig.Graph.TupleList(graph.edges(), directed=True)
-        for edge in g.es:
-            src = g.vs[edge.tuple[0]]['name']
-            tgt = g.vs[edge.tuple[1]]['name']
-            weight = graph.get_edge_data(src, tgt)['weight']
-            edge['weight'] = weight
         # run infomap
         infomap_partition = g.community_infomap(edge_weights='weight')
         infomap_partition_assignment = {g.vs[i]['name'] : infomap_partition.membership[i] 
-                        for i in range(len(g.vs))}
+                        for i in range(g.vcount())}
         
         return infomap_partition_assignment
     
     elif method == "LPM":
-        # convert to igraph
-        g = ig.Graph.TupleList(graph.edges(), directed=True)
-        for edge in g.es:
-            src = g.vs[edge.tuple[0]]['name']
-            tgt = g.vs[edge.tuple[1]]['name']
-            weight = graph.get_edge_data(src, tgt)['weight']
-            edge['weight'] = weight
         # run lpm
         lpm_partition = g.community_label_propagation(weights='weight')
         lpm_partition_assignment = {g.vs[i]['name'] : lpm_partition.membership[i] 
-                        for i in range(len(g.vs))}
+                        for i in range(g.vcount())}
         
         return lpm_partition_assignment
     
@@ -177,8 +181,46 @@ def make_communities(graph, method): #networkx graph object, string
         return louvain_partition_assignment
 
 def helper_community_detection(graph, method):
-    partition_data = make_communities(graph, method)
-    print(partition_data)
+
+    '''
+    Helper function to route graph and method to correct community detection
+
+    Inputs:
+        graph : networkx object
+            Networkx network object representing raw music data
+        method : string
+            String identifying clustering method to be used
+            Options are (case-sensitive):
+                1) infomap
+                2) LPM
+                3) HLC
+                4) louvain
+                5) 
+    Returns:
+        graph : networkx object
+            Networkx network object with added community data
+    '''
+
+    # igraph methods' conversion
+    if method == 'infomap' or method == 'LPM' or method == 'louvain':
+        if method == 'louvain':
+            # Note louvain does not apply for directed networks, be wary of the results!
+            g = ig.Graph.TupleList(graph.edges(), directed=False)
+        else:
+            g = ig.Graph.TupleList(graph.edges(), directed=True)
+        for edge in g.es:
+            src = g.vs[edge.tuple[0]]['name']
+            tgt = g.vs[edge.tuple[1]]['name']
+            edge['weight'] = graph.get_edge_data(src, tgt)['weight']
+
+        partition_data = make_communities(g, method)
+    
+    # networkx native methods
+    else:
+        partition_data = make_communities(graph, method)
+    
+    # add partition data to graph object
+
     for note in graph.nodes:
         graph.nodes[note]['comm_{}'.format(method)] = partition_data[note]
 
@@ -200,8 +242,10 @@ filename = 'telemannfantasie1.xml'#DO NOT PASS
 #Key of piece, used for Roman Numeral Analysis
 key = 'A'
 
+
 #Current graph encoding, use to recalculate graph 
 cur_graph_encoding = "basic"
+
 
 
 #Current random walk encoding, determines rhythm for random walk
@@ -289,6 +333,32 @@ def shiftEncoding(name=None):
     #Return data through javascript function
     return jsonify(data = data, random_walk = random_walk)
 	#return render_template('index.html', data=json_data)
+
+@app.route('/shiftCommunity', methods=['GET', 'POST'])
+def shiftCommunity(name=None):
+
+	#referencing outside variables to pass
+    global data
+    global graph
+
+	#Send back filename, key, grouping and offsets
+    msg = request.get_json()
+    new_data = data
+
+	#Change to Infomap
+    if msg == 0:
+        graph = helper_community_detection(graph, 'infomap')
+        data = json_graph.node_link_data(graph)
+	#Change to LPM
+    if msg == 1:
+        graph = helper_community_detection(graph, 'LPM')
+        data = json_graph.node_link_data(graph)
+	
+    return jsonify(data = data)
+	
+
+
+
 
 
 #Reads user file and saves as 'filename'

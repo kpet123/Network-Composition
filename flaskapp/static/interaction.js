@@ -29,6 +29,34 @@ error: function(request, status, error){
 }); 
 }
 
+// Community interaction stuff
+var change_community = function(action) {
+	console.log("data in shiftCommunity"+data);
+ //1 is our message - this is just a 'go' signal
+ var obj = action;
+	jQuery.ajax({
+	type: "POST",
+	//This url is the destination of the message being sent
+	//It needs to be specified in Flask through @app.route()
+	url: "/shiftCommunity",    
+	dataType : "json",
+	contentType: "application/json; charset=utf-8",
+	//this is a different data paramenter, must pass in the JSON
+	//string to be sent to Flask
+	data : JSON.stringify(obj),
+	success: function(result){
+		//Reload the page after data is updated sucessfully
+		location.reload();
+		console.log("Success");	
+	},  
+error: function(request, status, error){
+		console.log("Error");
+		console.log(request)
+		console.log(status)
+		console.log(error)
+	}   
+}); 
+}
 
 //in #(document).ready,  you can define responses to 
 //actions (e.g. button clicks) executed from 
@@ -65,7 +93,15 @@ $(document).ready(function(){
 		
 		//$("#data_test").append(data)
 		//console.log(data);
-		
+	
+	// Community buttons
+	$("#infomap_vis").click(function() {
+        console.log(data);
+        change_community(0)
+	});
+    $("#lpm_vis").click(function() {
+        console.log(data);
+        change_community(1)
 
 
 	})
