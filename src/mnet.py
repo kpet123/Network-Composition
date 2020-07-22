@@ -269,15 +269,17 @@ def group_strto16thnote(randomwalk):
     #print(len(randomwalk))
     while i < len(randomwalk)-1:
         #print(i)
-        string = randomwalk[i]
-        #print(string)
+        string = randomwalk[i].split("_")
+        #print("cur node ", string)
         #note pitch
-        notestr=string.split("_")[1]
+        notestr=string[1]
         n = music21.note.Note(notestr)
-        group_cur = string.split()[0]
+        group_cur = string[0]
         group_next = randomwalk[i+1].split("_")[0]
+        #print("next :", group_next)
         #note duration
         if group_cur !=group_next:
+            #print("different")
             n.duration.quarterLength =2
         else:
             n.duration.quarterLength = .25 
@@ -330,10 +332,11 @@ def str_rn_annotated(randomwalk, nodeToGroup_dict):
 def str_rn(randomwalk):
 
     mellst = []
-
+    print("in str_rn")
     for node in randomwalk:
 
-        mel = node.split()[0]
+        mel = node.split("_")[0]
+        print("mel is ", mel)
         n = music21.note.Note(mel)
         n.duration.quarterLength =.5
         mellst.append(n)
