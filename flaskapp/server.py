@@ -26,8 +26,8 @@ app = Flask(__name__)
 Set up local corpus
 '''
 localCorpus = music21.corpus.corpora.LocalCorpus()
-localCorpus.addPath('../library/')
-music21.corpus.cacheMetadata()
+localCorpus.addPath('library/')
+#music21.corpus.cacheMetadata()
 
 '''
 ***************
@@ -107,9 +107,9 @@ def make_graph_from_file(filename, encoding, key, offsets, grouping):
 
 #Input weighted community graph, add pitch labels
 def make_visualizable_graph(graph, pitchdict):
-    #weighted_graph = mnet.convert_to_weighted(graph, False)
-    nx.set_node_attributes(graph, pitchdict, "pitch")
-    return graph 
+    weighted_graph = mnet.convert_to_weighted(graph, False)
+    nx.set_node_attributes(weighted_graph, pitchdict, "pitch")
+    return weighted_graph 
 
 #Makes randomwalk json
 def make_randomwalk_json(graph, encoding_method):
@@ -222,7 +222,7 @@ def helper_community_detection(graph, method):
     # add partition data to graph object
 
     for note in graph.nodes:
-        graph.nodes[note]['comm_{}'.format(method)] = partition_data[note]
+        graph.nodes[note]['comm'] = partition_data[note]
 
     return graph
 
@@ -345,7 +345,7 @@ def shiftCommunity(name=None):
     print("in shift community")
 	#referencing outside variables to pass
     global data
-    global graph
+    global community_graph
 
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
@@ -353,12 +353,12 @@ def shiftCommunity(name=None):
 
 	#Change to Infomap
     if msg == 0:
-        graph = helper_community_detection(graph, 'infomap')
-        data = json_graph.node_link_data(graph)
+        community_graph = helper_community_detection(community_graph, 'infomap')
+        data = json_graph.node_link_data(community_graph)
 	#Change to LPM
     if msg == 1:
-        graph = helper_community_detection(graph, 'LPM')
-        data = json_graph.node_link_data(graph)
+        community_graph = helper_community_detection(community_graph, 'LPM')
+        data = json_graph.node_link_data(community_graph)
     print(data)
     return jsonify(data = data)
 	

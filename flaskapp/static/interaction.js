@@ -164,6 +164,7 @@ $(document).ready(function(){
 
 
 	});
+<<<<<<< Updated upstream
     $('#upload-file-btn').click(function() {
         console.log("in upload file button")
         upload();        
@@ -173,5 +174,7 @@ $(document).ready(function(){
         change_params();        
     });
  
+=======
+>>>>>>> Stashed changes
 })
 
