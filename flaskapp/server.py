@@ -349,6 +349,14 @@ def shiftEncoding(name=None):
                      key, offsets, grouping)
     data = json_graph.node_link_data(make_visualizable_graph(\
                 graph, pitchdict, cur_community))
+
+
+    #write file for testing
+    out_file = open("myfile.json", "w") 
+    json.dump(data, out_file) 
+    out_file.close() 
+
+
     print("Current walk encoding is ", str(cur_walk_encoding))
     random_walk = make_randomwalk_json(graph, cur_walk_encoding)
     #Return data through javascript function
