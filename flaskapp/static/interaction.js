@@ -74,6 +74,8 @@ var upload = function() {
                 console.log('Success!');
             },
         error: function(request, status, error){
+            console.log("from should be ")
+            console.log(form_data)
             console.log("Error");
             console.log(request)
             console.log(status)

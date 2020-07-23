@@ -223,7 +223,18 @@ def make_visualizable_graph(graph, pitchdict, cur_community):
     community_graph = helper_community_detection(mnet.convert_to_weighted(\
             graph, False), cur_community)
     #weighted_graph = mnet.convert_to_weighted(graph, False)
+
+#Set pitches
+    #Assign using pitchdict
     nx.set_node_attributes(community_graph, pitchdict, "pitch")
+    #Assign "start" and "end" manually
+    community_graph.nodes["start"]["pitch"]="start"
+    community_graph.nodes["end"]["pitch"]="end"
+    #Replace music21 '-' with 'b' so flat notes will play
+    for node in community_graph.nodes:
+        community_graph.nodes[node]["pitch"] = \
+               ( community_graph.nodes[node]["pitch"]).replace('-', 'b')
+
     return community_graph 
 
 
@@ -423,7 +434,7 @@ def success():
     global cur_community
     global graph
 
-
+    print("in update ajax method")
     f = request.files['file'] 
 
     #parse and render data with "Basic" default
