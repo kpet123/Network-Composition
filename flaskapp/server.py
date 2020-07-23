@@ -26,8 +26,8 @@ app = Flask(__name__)
 Set up local corpus
 '''
 localCorpus = music21.corpus.corpora.LocalCorpus()
-localCorpus.addPath('library/')
-#music21.corpus.cacheMetadata()
+localCorpus.addPath('../library/')
+music21.corpus.cacheMetadata()
 
 '''
 ***************
@@ -104,13 +104,6 @@ def make_graph_from_file(filename, encoding, key, offsets, grouping):
 
 #Other Functions:
 
-
-#Input weighted community graph, add pitch labels
-def make_visualizable_graph(graph, pitchdict):
-    weighted_graph = mnet.convert_to_weighted(graph, False)
-    nx.set_node_attributes(weighted_graph, pitchdict, "pitch")
-    return weighted_graph 
-
 #Makes randomwalk json
 def make_randomwalk_json(graph, encoding_method):
     randomwalk=mnet.generate_randomwalk(graph)
@@ -147,7 +140,7 @@ def make_communities(g, method):
             Networkx network object with added community data
     '''
     
-
+    print("*******Inside main comm function *******")
     if method == "infomap":
         # run infomap
         infomap_partition = g.community_infomap(edge_weights='weight')
@@ -200,7 +193,7 @@ def helper_community_detection(graph, method):
         graph : networkx object
             Networkx network object with added community data
     '''
-
+    print("********* Inside Helper Comm Function*****")
     # igraph methods' conversion
     if method == 'infomap' or method == 'LPM' or method == 'louvain':
         if method == 'louvain':
@@ -225,6 +218,17 @@ def helper_community_detection(graph, method):
         graph.nodes[note]['comm'] = partition_data[note]
 
     return graph
+
+#Input weighted community graph, add pitch labels
+def make_visualizable_graph(graph, pitchdict, cur_community):
+
+    #add communities
+    community_graph = helper_community_detection(mnet.convert_to_weighted(\
+            graph, False), cur_community)
+    #weighted_graph = mnet.convert_to_weighted(graph, False)
+    nx.set_node_attributes(community_graph, pitchdict, "pitch")
+    return community_graph 
+
 
 '''
 ****************************************
@@ -264,13 +268,11 @@ graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
 #Do not convert to weighted graph before generating random walk
 random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
 
-#add communities
-community_graph = helper_community_detection(mnet.convert_to_weighted(\
-            graph, False), "infomap")
-#Convert graph to weighted graph with pitch names
+
+#Convert graph to weighted graph with pitch names+ comm labels
 
 data = json_graph.node_link_data(make_visualizable_graph(\
-            community_graph, pitchdict) )
+            graph, pitchdict, cur_community) )
 	
 
 print("randomwalk is :", type(random_walk))
@@ -286,7 +288,17 @@ in the beginning of each app routing function
 #homepage
 @app.route('/') 
 def default(name=None): 
-	return render_template('index.html', data=data, key=key, grouping = grouping,			offsets=offsets, random_walk=random_walk)   
+    global data
+    global filename
+    global key
+    global grouping
+    global offsets
+    global random_walk
+    global cur_graph_encoding
+    global pitchdict
+    global cur_community
+
+    return render_template('index.html', data=data, key=key, grouping = grouping,			offsets=offsets, random_walk=random_walk)   
 
     
 #Regenerates the graph based on the currently used 
@@ -302,6 +314,8 @@ def shiftEncoding(name=None):
     global offsets
     global random_walk
     global cur_graph_encoding
+    global pitchdict
+    global cur_community
     print("Filename is ", filename)
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
@@ -333,7 +347,8 @@ def shiftEncoding(name=None):
     #Generate graph and pitchlist
     graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
                      key, offsets, grouping)
-    data = json_graph.node_link_data(make_visualizable_graph(graph, pitchdict))
+    data = json_graph.node_link_data(make_visualizable_graph(\
+                graph, pitchdict, cur_community))
     print("Current walk encoding is ", str(cur_walk_encoding))
     random_walk = make_randomwalk_json(graph, cur_walk_encoding)
     #Return data through javascript function
@@ -345,21 +360,30 @@ def shiftCommunity(name=None):
     print("in shift community")
 	#referencing outside variables to pass
     global data
-    global community_graph
+    global filename
+    global key
+    global grouping
+    global offsets
+    global random_walk
+    global cur_graph_encoding
+    global pitchdict
+    global cur_community
+
 
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
     new_data = data
 
 	#Change to Infomap
-    if msg == 0:
-        community_graph = helper_community_detection(community_graph, 'infomap')
-        data = json_graph.node_link_data(community_graph)
-	#Change to LPM
+    if msg == 0:     
+	    cur_community='infomap'
+    #Change to LPM
     if msg == 1:
-        community_graph = helper_community_detection(community_graph, 'LPM')
-        data = json_graph.node_link_data(community_graph)
-    print(data)
+        cur_community = 'lpm'
+     
+    data = json_graph.node_link_data(make_visualizable_graph(\
+            graph, pitchdict, cur_community) )
+
     return jsonify(data = data)
 	
 
@@ -373,22 +397,29 @@ def shiftCommunity(name=None):
 @app.route('/uploadajax', methods = ['POST'])  
 def success():  
 #    if request.method == 'POST': 
-	
+    global data
+    global filename
+    global key
+    global grouping
+    global offsets
+    global random_walk
+    global cur_graph_encoding
+    global pitchdict
+    global cur_community
+
+
+
     f = request.files['file'] 
 
     #parse and render data with "Basic" default
-    global data
-    global filename
-    global random_walk
-    global grouping
-    global offsets
-    global key
+ 
+
     f.save("../library/"+f.filename)
     filename = f.filename
     graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
                  key, offsets, grouping)
     data = json_graph.node_link_data(make_visualizable_graph(\
-                 graph, pitchdict))
+                 graph, pitchdict, cur_community))
     random_walk = make_randomwalk_json(graph, cur_walk_encoding)
     print("code in success executed") 
     return jsonify(data=data, raondom_walk = random_walk)
@@ -403,11 +434,14 @@ def changeparams():
 #    if request.method == 'POST':
     global data
     global filename
-    global random_walk
+    global key
     global grouping
     global offsets
-    global key  
-    
+    global random_walk
+    global cur_graph_encoding
+    global pitchdict
+    global cur_community
+
 
     #Get requested values
 
@@ -430,7 +464,7 @@ def changeparams():
     graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
                  key, offsets, grouping)
     data = json_graph.node_link_data(make_visualizable_graph(\
-                 graph, pitchdict))
+                 graph, pitchdict, cur_community))
     random_walk = make_randomwalk_json(graph, cur_walk_encoding)
 
     
