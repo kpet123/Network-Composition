@@ -313,6 +313,8 @@ def shiftEncoding(name=None):
     global cur_graph_encoding
     global pitchdict
     global cur_community
+    global graph
+
     print("Filename is ", filename)
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
@@ -373,7 +375,7 @@ def shiftCommunity(name=None):
     global cur_graph_encoding
     global pitchdict
     global cur_community
-
+    global graph
 
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
@@ -391,7 +393,9 @@ def shiftCommunity(name=None):
     #Change to HLC
     if msg == 3:
         cur_community = 'HLC'
-     
+
+    print("cur_community is ", cur_community)
+ 
     data = json_graph.node_link_data(make_visualizable_graph(\
             graph, pitchdict, cur_community) )
 
@@ -417,7 +421,7 @@ def success():
     global cur_graph_encoding
     global pitchdict
     global cur_community
-
+    global graph
 
 
     f = request.files['file'] 
@@ -452,6 +456,7 @@ def changeparams():
     global cur_graph_encoding
     global pitchdict
     global cur_community
+    global graph 
 
 
     #Get requested values
