@@ -161,9 +161,15 @@ $(document).ready(function(){
     $("#lpm_vis").click(function() {
         console.log(data);
         change_community(1);
-
-
-	});
+    });
+    $("#louvain_vis").click(function() {
+        console.log(data);
+        change_community(2);
+    });
+    $("#hlc_vis").click(function() {
+        console.log(data);
+        change_community(3);
+    });
     $('#upload-file-btn').click(function() {
         console.log("in upload file button")
         upload();        

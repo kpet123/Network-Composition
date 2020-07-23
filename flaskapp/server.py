@@ -132,49 +132,42 @@ def make_communities(g, method):
             Options are (case-sensitive):
                 1) infomap
                 2) LPM
-                3) HLC
-                4) louvain
-                5) 
+                3) louvain
+                4) HLC
     Returns:
         graph : networkx object
             Networkx network object with added community data
     '''
-    
     print("*******Inside main comm function *******")
+
+
     if method == "infomap":
-        # run infomap
         infomap_partition = g.community_infomap(edge_weights='weight')
         infomap_partition_assignment = {g.vs[i]['name'] : infomap_partition.membership[i] 
                         for i in range(g.vcount())}
         
         return infomap_partition_assignment
     
+
     elif method == "LPM":
-        # run lpm
         lpm_partition = g.community_label_propagation(weights='weight')
         lpm_partition_assignment = {g.vs[i]['name'] : lpm_partition.membership[i] 
                         for i in range(g.vcount())}
         
         return lpm_partition_assignment
     
+
     elif method == 'louvain':
-        # convert to igraph
-        g = ig.Graph.TupleList(graph.edges(), directed=False)
-        for edge in g.es:
-            src = g.vs[edge.tuple[0]]['name']
-            tgt = g.vs[edge.tuple[1]]['name']
-            weight = graph.get_edge_data(src, tgt)['weight']
-            edge['weight'] = weight
-            print(weight)
-        # run louvain
         louvain_partition = g.community_multilevel(weights=[e['weight'] for e in g.es])
         louvain_partition_assignment = {g.vs[i]['name'] : louvain_partition.membership[i] 
                         for i in range(len(g.vs))}
         
         return louvain_partition_assignment
 
-def helper_community_detection(graph, method):
+    elif method == 'HLC':
+        pass
 
+def helper_community_detection(graph, method):
     '''
     Helper function to route graph and method to correct community detection
 
@@ -186,16 +179,18 @@ def helper_community_detection(graph, method):
             Options are (case-sensitive):
                 1) infomap
                 2) LPM
-                3) HLC
-                4) louvain
-                5) 
+                3) louvain
+                4) HLC
     Returns:
         graph : networkx object
             Networkx network object with added community data
     '''
     print("********* Inside Helper Comm Function*****")
-    # igraph methods' conversion
-    if method == 'infomap' or method == 'LPM' or method == 'louvain':
+
+
+    # Node methods
+    if method != 'HLC':
+        # igraph methods' conversion
         if method == 'louvain':
             # Note louvain does not apply for directed networks, be wary of the results!
             g = ig.Graph.TupleList(graph.edges(), directed=False)
@@ -204,19 +199,21 @@ def helper_community_detection(graph, method):
         for edge in g.es:
             src = g.vs[edge.tuple[0]]['name']
             tgt = g.vs[edge.tuple[1]]['name']
-            edge['weight'] = graph.get_edge_data(src, tgt)['weight']
+            try:
+                edge['weight'] = graph.get_edge_data(src, tgt)['weight']
+            except TypeError:
+                edge['weight'] = 1
 
         partition_data = make_communities(g, method)
+        # add partition data to graph object
+        for note in graph.nodes:
+            graph.nodes[note]['comm'] = partition_data[note]
     
-    # networkx native methods
+    # Link methods
     else:
         partition_data = make_communities(graph, method)
     
-    # add partition data to graph object
-
-    for note in graph.nodes:
-        graph.nodes[note]['comm'] = partition_data[note]
-
+    
     return graph
 
 #Input weighted community graph, add pitch labels
@@ -251,7 +248,7 @@ key = 'A'
 cur_graph_encoding = "basic"
 
 #Community designator
-cur_community = "infomap" 
+cur_community = "louvain" 
 
 #Current random walk encoding, determines rhythm for random walk
 cur_walk_encoding = mnet.strto16thnote
@@ -388,6 +385,12 @@ def shiftCommunity(name=None):
     #Change to LPM
     if msg == 1:
         cur_community = 'LPM'
+    #Change to Louvain
+    if msg == 2:
+        cur_community = 'louvain'
+    #Change to HLC
+    if msg == 3:
+        cur_community = 'HLC'
      
     data = json_graph.node_link_data(make_visualizable_graph(\
             graph, pitchdict, cur_community) )
