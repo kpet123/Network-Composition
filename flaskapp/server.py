@@ -387,7 +387,7 @@ def shiftCommunity(name=None):
 	    cur_community='infomap'
     #Change to LPM
     if msg == 1:
-        cur_community = 'lpm'
+        cur_community = 'LPM'
      
     data = json_graph.node_link_data(make_visualizable_graph(\
             graph, pitchdict, cur_community) )
