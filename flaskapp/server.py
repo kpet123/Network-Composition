@@ -1,3 +1,7 @@
+# System imports
+import json
+import os
+
 #Flask-related imports
 from flask import Flask
 from flask import render_template
@@ -5,16 +9,19 @@ from flask import Response, request, jsonify
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
-#general imports
-import music21
+# Network imports
+from cdlib import algorithms.hierarchical_link_community
 import networkx as nx
 import igraph as ig
-import matplotlib.pyplot as plt
-import numpy as np
 import mnet
 from networkx.readwrite import json_graph
-import json
-import os
+
+# General imports
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Other imports
+import music21
 
 '''
 Declare app
@@ -173,10 +180,14 @@ def make_communities(g, method):
         return louvain_partition_assignment
 
     elif method == 'HLC':
-        from cdlib import algorithms
         coms = algorithms.hierarchical_link_community(g)
         
-        return coms.communities
+        #return coms.communities
+
+        ### TRYING HLC MODULE
+        import hlc 
+        os.system('python hlc -o temp_hlc_clusters.txt' )
+
 
 def helper_community_detection(graph, method):
     '''
