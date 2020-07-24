@@ -142,6 +142,16 @@ def make_communities(g, method):
 
 
     if method == "infomap":
+        edge_tuples = tuple([edge.tuple for edge in g.es])
+        im = infomap.Infomap("-d")
+        im.add_links(edge_tuples)
+        # currently running into runtime errors
+        #modules = im.get_multilevel_modules()
+        modules = im.get_modules(1)
+        modules_fine = im.get_modules(-1)
+
+
+
         infomap_partition = g.community_infomap(edge_weights='weight')
         infomap_partition_assignment = {g.vs[i]['name'] : infomap_partition.membership[i] 
                         for i in range(g.vcount())}
@@ -165,7 +175,10 @@ def make_communities(g, method):
         return louvain_partition_assignment
 
     elif method == 'HLC':
-        pass
+        from cdlib import algorithms
+        coms = algorithms.hierarchical_link_community(g)
+        
+        return coms.communities
 
 def helper_community_detection(graph, method):
     '''
@@ -186,32 +199,33 @@ def helper_community_detection(graph, method):
             Networkx network object with added community data
     '''
     print("********* Inside Helper Comm Function*****")
+  
+    # igraph methods' conversion
+    if method == 'louvain':
+        # Note louvain does not apply for directed networks, be wary of the results!
+        g = ig.Graph.TupleList(graph.edges(), directed=False)
+    else:
+        g = ig.Graph.TupleList(graph.edges(), directed=True)
+    for edge in g.es:
+        src = g.vs[edge.tuple[0]]['name']
+        tgt = g.vs[edge.tuple[1]]['name']
+        try:
+            edge['weight'] = graph.get_edge_data(src, tgt)['weight']
+        except TypeError:
+            edge['weight'] = 1
 
-
-    # Node methods
+    partition_data = make_communities(g, method)
+    # add partition data to graph object
     if method != 'HLC':
-        # igraph methods' conversion
-        if method == 'louvain':
-            # Note louvain does not apply for directed networks, be wary of the results!
-            g = ig.Graph.TupleList(graph.edges(), directed=False)
-        else:
-            g = ig.Graph.TupleList(graph.edges(), directed=True)
-        for edge in g.es:
-            src = g.vs[edge.tuple[0]]['name']
-            tgt = g.vs[edge.tuple[1]]['name']
-            try:
-                edge['weight'] = graph.get_edge_data(src, tgt)['weight']
-            except TypeError:
-                edge['weight'] = 1
-
-        partition_data = make_communities(g, method)
-        # add partition data to graph object
         for note in graph.nodes:
             graph.nodes[note]['comm'] = partition_data[note]
-    
-    # Link methods
     else:
-        partition_data = make_communities(graph, method)
+        for link in g.es:
+            for comm in partition_data:
+                if link.tuple in comm:
+                    g.es[link.tuple]['comm'] = partition_data.index(comm)
+                    # set as link attribute, should be easily retrievable from JSON?
+                    graph.edges[(g.vs[link.tuple[0]]['name'], g.vs[link.tuple[0]]['name'])]['comm'] = partition_data.index(comm)
     
     
     return graph
@@ -259,7 +273,7 @@ key = 'A'
 cur_graph_encoding = "basic"
 
 #Community designator
-cur_community = "louvain" 
+cur_community = "HLC" 
 
 #Current random walk encoding, determines rhythm for random walk
 cur_walk_encoding = mnet.strto16thnote
