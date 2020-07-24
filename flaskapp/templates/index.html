@@ -2,6 +2,7 @@
 <head>
     <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
 	<script src="/static/interaction.js"></script>
+    <script src="/static/observable.js" type="module"></script>
 </head>
 <style>
 div.scroll_div {
@@ -150,6 +151,19 @@ Click the below button to change visualized communities
     </fieldset>
 </div>
 
+<!-- Embedded Observable --!>
+<h2> Press to Start Random Walk </h2>
+<div id="start_walk"></div>
+<div id="chart"></div>
+<h2> Visualization Parameters </h2>
+<div id="radius"></div>
+<div id="attraction"></div>
+<h2> Audio Parameters </h2>
+<div id="wavetype"></div>
+<h2> Data and Random Walk Explorer </h2>
+<div id="data"></div>
+<div id="random_walk"></div>
+
 
 <script>
 	//These variables are instantiated in Flask and can be 
@@ -166,32 +180,6 @@ Click the below button to change visualized communities
     console.log("In definiing area")
     console.log(random_walk)
 </script>
-
-<!-- This script instantiates our Observable script and -->
-<!--controls how information is passed in and out of -->
-<!-- Observable-->
-<script type="module">
-
-// Load the Observable runtime and inspector.
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
-// Your notebook, compiled as an ES module.
-
-import notebook from "https://api.observablehq.com/@kpet123/music-composition-graph.js?v=3"
-// Load the notebook, observing its cells with a default Inspector
-// that simply renders the value of each cell into the provided DOM node.
-const main = new Runtime().module(notebook, Inspector.into(document.body));
-
-//Match the "data" variable defined in Observable to the data variable
-//passed into index.html through Flask
-console.log("Testing in Observable- key is :")
-console.log(key)
-console.log(data)
-main.redefine("random_walk", random_walk);
-
-main.redefine("data", data);
-</script>
-
 
 
 
