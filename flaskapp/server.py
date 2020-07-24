@@ -142,18 +142,16 @@ def make_communities(g, method):
 
 
     if method == "infomap":
-        edge_tuples = tuple([edge.tuple for edge in g.es])
-        im = infomap.Infomap("-d")
+        edge_tuples = [edge.tuple for edge in g.es]
+        im = infomap.Infomap()
         im.add_links(edge_tuples)
-        # currently running into runtime errors
-        #modules = im.get_multilevel_modules()
-        modules = im.get_modules(1)
-        modules_fine = im.get_modules(-1)
-
-
-
-        infomap_partition = g.community_infomap(edge_weights='weight')
-        infomap_partition_assignment = {g.vs[i]['name'] : infomap_partition.membership[i] 
+        im.run("-d -N 10")
+        modules = im.get_multilevel_modules()
+        
+        # igraph non-hierarchical version
+        #infomap_partition = g.community_infomap(edge_weights='weight')
+        
+        infomap_partition_assignment = {g.vs[i]['name'] : modules[i] 
                         for i in range(g.vcount())}
         
         return infomap_partition_assignment
@@ -168,8 +166,8 @@ def make_communities(g, method):
     
 
     elif method == 'louvain':
-        louvain_partition = g.community_multilevel(weights=[e['weight'] for e in g.es])
-        louvain_partition_assignment = {g.vs[i]['name'] : louvain_partition.membership[i] 
+        louvain_partition = g.community_multilevel(weights=[e['weight'] for e in g.es], return_levels=True)
+        louvain_partition_assignment = {g.vs[i]['name'] : [level.membership[i] for level in louvain_partition]
                         for i in range(len(g.vs))}
         
         return louvain_partition_assignment
@@ -223,9 +221,12 @@ def helper_community_detection(graph, method):
         for link in g.es:
             for comm in partition_data:
                 if link.tuple in comm:
+                    # igraph edge atribute, don't need for final, used in debug
                     g.es[link.tuple]['comm'] = partition_data.index(comm)
                     # set as link attribute, should be easily retrievable from JSON?
-                    graph.edges[(g.vs[link.tuple[0]]['name'], g.vs[link.tuple[0]]['name'])]['comm'] = partition_data.index(comm)
+                    src = g.vs[link.tuple[0]]['name']
+                    tgt = g.vs[link.tuple[1]]['name']
+                    graph.edges[(src, tgt)]['comm'] = partition_data.index(comm)
     
     
     return graph
@@ -270,10 +271,10 @@ key = 'A'
 
 
 #Current graph encoding, use to recalculate graph 
-cur_graph_encoding = "basic"
+cur_graph_encoding = "grouped"
 
 #Community designator
-cur_community = "HLC" 
+cur_community = "louvain" 
 
 #Current random walk encoding, determines rhythm for random walk
 cur_walk_encoding = mnet.strto16thnote
@@ -288,7 +289,7 @@ graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
 
 #Random walk implementation needs MultiDigraph to work
 #Do not convert to weighted graph before generating random walk
-random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
+random_walk = make_randomwalk_json(graph, mnet.group_strto16thnote)
 
 
 #Convert graph to weighted graph with pitch names+ comm labels
@@ -319,6 +320,8 @@ def default(name=None):
     global cur_graph_encoding
     global pitchdict
     global cur_community
+    global graph
+    global cur_walk_encoding
 
     return render_template('index.html', data=data, key=key, grouping = grouping,			offsets=offsets, random_walk=random_walk)   
 
@@ -339,6 +342,8 @@ def shiftEncoding(name=None):
     global pitchdict
     global cur_community
     global graph
+    global cur_walk_encoding
+    
 
     print("Filename is ", filename)
 	#Send back filename, key, grouping and offsets
@@ -401,6 +406,7 @@ def shiftCommunity(name=None):
     global pitchdict
     global cur_community
     global graph
+    global cur_walk_encoding
 
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
@@ -447,6 +453,7 @@ def success():
     global pitchdict
     global cur_community
     global graph
+    global cur_walk_encoding
 
     print("in update ajax method")
     f = request.files['file'] 
@@ -481,7 +488,8 @@ def changeparams():
     global cur_graph_encoding
     global pitchdict
     global cur_community
-    global graph 
+    global graph
+    global cur_walk_encoding
 
 
     #Get requested values
