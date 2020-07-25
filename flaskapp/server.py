@@ -232,7 +232,7 @@ def make_visualizable_graph(graph, pitchdict, cur_community, changed_edges):
    
     #Set pitches and assign using pitchdict
     nx.set_node_attributes(community_graph, pitchdict, "pitch")
-
+    print("pitchdict is ", pitchdict)
     #Assign "start" and "end" manually
     community_graph.nodes["start"]["pitch"]="start"
     community_graph.nodes["end"]["pitch"]="end"
@@ -243,12 +243,14 @@ def make_visualizable_graph(graph, pitchdict, cur_community, changed_edges):
                ( community_graph.nodes[node]["pitch"]).replace('-', 'b')
 
     #Set changed_edge property- all false first , then t
-    nx.set_edge_attributes(community_graph, False, "changed_edge")
+    changed_dict = dict(zip(community_graph.edges, \
+            np.zeros(len(community_graph.edges))))
+    nx.set_edge_attributes(community_graph, changed_dict, "changed_edge")
 
     #check changes
     for edge in changed_edges.keys():
         print("changing edge", edge)
-        community_graph.edges[edge[0], edge[1]]["changed_edge"]=True
+        community_graph.edges[edge[0], edge[1]]["changed_edge"]=1
 
     
     return community_graph 
@@ -411,13 +413,6 @@ def shiftEncoding(name=None):
                      key, offsets, grouping, changed_edges)
     data = json_graph.node_link_data(make_visualizable_graph(\
                 graph, pitchdict, cur_community, changed_edges))
-
-    '''
-    #write file for testing
-    out_file = open("myfile.json", "w") 
-    json.dump(data, out_file) 
-    out_file.close() 
-    '''
 
     print("Current walk encoding is ", str(cur_walk_encoding))
     random_walk = make_randomwalk_json(graph, cur_walk_encoding)
@@ -596,14 +591,23 @@ def change_edge_weight():
     src = request.form['src']  
     dst = request.form['dst']
     weight = int(request.form['weight'])
-    changed_edges = {(src, dst): weight}
-    
+    changed_edges[(src, dst)] =  weight
+    print("***************cur graph encoding is ", cur_graph_encoding)   
     # Recalculate data and random walk
     graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
                  key, offsets, grouping, changed_edges)
     data = json_graph.node_link_data(make_visualizable_graph(\
                  graph, pitchdict, cur_community, changed_edges))
     random_walk = make_randomwalk_json(graph, cur_walk_encoding)
+
+    print(data)
+    
+    #write file for testing
+    out_file = open("myfile.json", "w") 
+    json.dump(data, out_file) 
+    out_file.close() 
+   
+
 
     
     print("Grouping is ", grouping[1])
