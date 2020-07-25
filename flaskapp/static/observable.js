@@ -16,7 +16,8 @@ const renders = {
     "random_walk": "#random_walk",
     "viewof radius": "#radius",
     "viewof attraction": "#attraction",
-    "viewof type": "#wavetype"
+    "viewof type": "#wavetype",
+    "viewof distance": "#distance"
   };
 //Code adapted from
 //https://talk.observablehq.com/t/embedding-only-parts-of-notebook/2470/4

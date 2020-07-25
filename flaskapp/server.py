@@ -217,19 +217,19 @@ def helper_community_detection(graph, method):
     return graph
 
 #Input weighted community graph, add pitch labels
-def make_visualizable_graph(graph, pitchdict, cur_community):
+def make_visualizable_graph(graph, pitchdict, cur_community, changed_edges):
 
     #add communities
     community_graph = helper_community_detection(mnet.convert_to_weighted(\
             graph, False), cur_community)
-    #weighted_graph = mnet.convert_to_weighted(graph, False)
-
-#Set pitches
-    #Assign using pitchdict
+   
+    #Set pitches and assign using pitchdict
     nx.set_node_attributes(community_graph, pitchdict, "pitch")
+
     #Assign "start" and "end" manually
     community_graph.nodes["start"]["pitch"]="start"
     community_graph.nodes["end"]["pitch"]="end"
+
     #Replace music21 '-' with 'b' so flat notes will play
     for node in community_graph.nodes:
         community_graph.nodes[node]["pitch"] = \
@@ -247,41 +247,65 @@ manipulated directly.
 TODO: implement encoding 
 ****************************************
 '''
-
+#****************
 #Name of currently used file
+#****************
 filename = 'telemannfantasie1.xml'#DO NOT PASS
 
+#****************
 #Key of piece, used for Roman Numeral Analysis
+#****************
 key = 'A'
 
-
+#****************
 #Current graph encoding, use to recalculate graph 
+#****************
 cur_graph_encoding = "basic"
 
+#****************
 #Community designator
+#****************
 cur_community = "louvain" 
 
+#****************
 #Current random walk encoding, determines rhythm for random walk
+#****************
 cur_walk_encoding = mnet.strto16thnote
+
+
+#****************
 #Grouping and offset should be joined into 1 variable ideally - grouping
 #refers to measure index, while offset refers to note index
+#****************
 grouping = [1, 5, 11, 27, 37, 49, 61, 75, "end"]
 offsets=[0.0, 16.0, 40.0, 104.0,144.0, 162.0, 180.0, 201.0, "end"]
 
-#Create initial graph
+#****************
+#Create initial graph and pitch dictionary
+#****************
 graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
 					 key, offsets, grouping)
 
+
+#****************
+#Random walk (JSON)
 #Random walk implementation needs MultiDigraph to work
 #Do not convert to weighted graph before generating random walk
+#****************
 random_walk = make_randomwalk_json(graph, mnet.strto16thnote)
 
 
+#****************
+#JSON of graph
 #Convert graph to weighted graph with pitch names+ comm labels
-
+#****************
 data = json_graph.node_link_data(make_visualizable_graph(\
             graph, pitchdict, cur_community) )
-	
+
+#****************	
+#List of edges changed by user
+#****************
+changed_edges = {}
 
 print("randomwalk is :", type(random_walk))
 '''
@@ -292,8 +316,10 @@ Very important to include reference to global variable
 in the beginning of each app routing function
 *****************************************
 '''
-
+#****************
 #homepage
+#****************
+
 @app.route('/') 
 def default(name=None): 
     global data
@@ -305,12 +331,17 @@ def default(name=None):
     global cur_graph_encoding
     global pitchdict
     global cur_community
+    global graph
+    global changed_edges
 
-    return render_template('index.html', data=data, key=key, grouping = grouping,			offsets=offsets, random_walk=random_walk)   
+    return render_template('index.html', data=data, key=key,\
+                 grouping = grouping, offsets=offsets,
+                 random_walk=random_walk, changed_edges=changed_edges)   
 
-    
+#****************    
 #Regenerates the graph based on the currently used 
 #file and the desired graph encoding scheme
+#****************
 @app.route('/shiftEncoding', methods=['GET', 'POST'])
 def shiftEncoding(name=None):
 
@@ -325,6 +356,8 @@ def shiftEncoding(name=None):
     global pitchdict
     global cur_community
     global graph
+    global cur_walk_encoding
+    global changed_edges
 
     print("Filename is ", filename)
 	#Send back filename, key, grouping and offsets
@@ -353,19 +386,21 @@ def shiftEncoding(name=None):
     if msg ==4:
         cur_graph_encoding = "grouped_rn"   
 
-
+    changed_edges = {}
+    #Reset user changes
+    
     #Generate graph and pitchlist
     graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
                      key, offsets, grouping)
     data = json_graph.node_link_data(make_visualizable_graph(\
-                graph, pitchdict, cur_community))
+                graph, pitchdict, cur_community, changed_edges))
 
-
+'''
     #write file for testing
     out_file = open("myfile.json", "w") 
     json.dump(data, out_file) 
     out_file.close() 
-
+'''
 
     print("Current walk encoding is ", str(cur_walk_encoding))
     random_walk = make_randomwalk_json(graph, cur_walk_encoding)
@@ -373,6 +408,11 @@ def shiftEncoding(name=None):
     return jsonify(data = data, random_walk = random_walk)
 	#return render_template('index.html', data=json_data)
 
+
+
+#****************
+#Changes community labels
+#****************
 @app.route('/shiftCommunity', methods=['GET', 'POST'])
 def shiftCommunity(name=None):
     print("in shift community")
@@ -387,6 +427,9 @@ def shiftCommunity(name=None):
     global pitchdict
     global cur_community
     global graph
+    global cur_walk_encoding
+    global changed_edges
+
 
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
@@ -408,7 +451,7 @@ def shiftCommunity(name=None):
     print("cur_community is ", cur_community)
  
     data = json_graph.node_link_data(make_visualizable_graph(\
-            graph, pitchdict, cur_community) )
+            graph, pitchdict, cur_community, changed_edges) )
 
     return jsonify(data = data)
 	
@@ -416,10 +459,11 @@ def shiftCommunity(name=None):
 
 
 
-
+#****************
 #Reads user file and saves as 'filename'
 #Returns new "Basic" encoding graph and random walk
 #based on the user's file 
+#****************
 @app.route('/uploadajax', methods = ['POST'])  
 def success():  
 #    if request.method == 'POST': 
@@ -433,12 +477,16 @@ def success():
     global pitchdict
     global cur_community
     global graph
+    global cur_walk_encoding
+    global changed_edges
+
 
     print("in update ajax method")
     f = request.files['file'] 
 
-    #parse and render data with "Basic" default
+    #parse and render data with no changed edges and current encoding 
  
+    changed_edges = {}
 
     f.save("../library/"+f.filename)
     filename = f.filename
@@ -452,9 +500,10 @@ def success():
 
 
 
-#TODO: implement this
+#****************
 #Reads in additional parameters supplied by user.
 #If applicable, changes graph and random walk accordingly
+#****************
 @app.route('/changeparams', methods = ['POST'])
 def changeparams():
 #    if request.method == 'POST':
@@ -468,6 +517,8 @@ def changeparams():
     global pitchdict
     global cur_community
     global graph 
+    global cur_walk_encoding
+    global changed_edges
 
 
     #Get requested values
@@ -502,6 +553,45 @@ def changeparams():
                 grouping = grouping, key = key, offsets = offsets)
 
 
+
+#****************
+#Change weight of an edge
+#****************
+@app.route('/change_edge_weight', methods = ['POST'])
+def changeparams():
+#    if request.method == 'POST':
+    global data
+    global filename
+    global key
+    global grouping
+    global offsets
+    global random_walk
+    global cur_graph_encoding
+    global pitchdict
+    global cur_community
+    global graph 
+    global cur_walk_encoding
+    global changed_edges
+
+
+    #Get requested values
+    #weight + edge name, could be tuple or list or dict
+    edge = request.form['weight']  
+
+
+    # Recalculate data and random walk
+    graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
+                 key, offsets, grouping)
+    data = json_graph.node_link_data(make_visualizable_graph(\
+                 graph, pitchdict, cur_community))
+    random_walk = make_randomwalk_json(graph, cur_walk_encoding)
+
+    
+    print("Grouping is ", grouping[1])
+
+
+    return jsonify(data = data, random_walk = random_walk, \
+                grouping = grouping, key = key, offsets = offsets)
 
  
 if __name__ == '__main__':
