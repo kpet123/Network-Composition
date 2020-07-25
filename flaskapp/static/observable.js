@@ -4,9 +4,9 @@ import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/run
 
 // Your notebook, compiled as an ES module.
 
-import notebook from "https://api.observablehq.com/@kpet123/music-composition-graph.js?v=3"
+//import notebook from "https://api.observablehq.com/@kpet123/music-composition-graph.js?v=3"
 
-
+import notebook from "https://api.observablehq.com/@kpet123/music-composition-graph-link-view.js?v=3"
 
 //which cells to render
 const renders = {
@@ -17,7 +17,10 @@ const renders = {
     "viewof radius": "#radius",
     "viewof attraction": "#attraction",
     "viewof type": "#wavetype",
-    "viewof distance": "#distance"
+    "viewof distance": "#distance",
+    "passed_src": "#chosen_source",
+    "passed_dst": "#chosen_target",
+    "passed_weight": "#cur_weight"
   };
 //Code adapted from
 //https://talk.observablehq.com/t/embedding-only-parts-of-notebook/2470/4
@@ -39,3 +42,7 @@ console.log(data)
 main.redefine("random_walk", random_walk);
 main.redefine("data", data);
 
+
+//Get values for edge with weight to be changed. src and dst
+//var chosen_src = await module2.value("mutable chosen_source");
+//var chosen_dst = await module2.value("mutable chosen_target");

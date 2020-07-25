@@ -116,6 +116,39 @@ var change_params = function() {
      
     });
 };
+/****************
+Change weight of edge
+****************/
+var change_weight = function() {
+         var form_data = {
+            src: document.getElementById("chosen_source").innerText,
+            dst: document.getElementById("chosen_target").innerText,
+            weight: $('#new_weight').val(),
+
+         };
+         console.log("in change weight function") 
+         console.log(form_data)
+         $.ajax({
+            type: 'POST',
+            url:'/change_edge_weight',
+            data: form_data,
+        //    contentType: false,
+        //    cache: false,
+        //    processData: false,
+            success: function(data) {
+                location.reload();
+                console.log('Success!');
+            },
+         error: function(request, status, error){
+            console.log("Error");
+            console.log(request)
+            console.log(status)
+            console.log(error)
+    }
+     
+    });
+};
+
 
 //in #(document).ready,  you can define responses to 
 //actions (e.g. button clicks) executed from 
@@ -146,12 +179,6 @@ $(document).ready(function(){
     $("#grouped_RN").click(function() {
         console.log(data);
         change_encoding(4)
-		//'data_test' is the id of the div used to show the current 
-		//json string being used. We can include the below code in each action
-		// blockso the displayed variable will update after we change encodings
-		
-		//$("#data_test").append(data)
-		//console.log(data);
 		});
 
 	// Community buttons
@@ -172,15 +199,21 @@ $(document).ready(function(){
         console.log(data);
         change_community(3);
     });
-    $('#upload-file-btn').click(function() {
+    // New Data Upload
+     $('#upload-file-btn').click(function() {
         console.log("in upload file button")
         upload();        
     });
+    //Update Parameters
     $('#update-params-btn').click(  function() {
         console.log("in change params document ready")
         change_params();        
     });
- 
+    //Change Edge weights
+    $('#change-weight-btn').click(  function() {
+        console.log("in change weight document ready")
+        change_weight();    
+    }); 
 
 })
 

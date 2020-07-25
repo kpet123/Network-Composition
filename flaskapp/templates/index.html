@@ -158,9 +158,22 @@ Click the below button to change visualized communities
 <h2> Visualization Parameters </h2>
 <div id="radius"></div>
 <div id="attraction"></div>
-<div id="distance"></div>
-<h2> Audio Parameters </h2>
 <div id="wavetype"></div>
+<h2> Change Edge Weight</h2>
+<div class="gen_info">
+    Chosen Edge : 
+    <div>
+        <p id="chosen_source"></p> TO  <p id="chosen_target"></p>
+    </div>
+    with weight <p id="cur_weight"></p>
+    <form>
+
+            <input type="text" id="new_weight" name="new_weight" >
+            ( e.g. <i>6</i>)
+        <button id = "change-weight-btn" type="button">Submit</button>
+    </form>
+</div>
+<div>
 <h2> Data and Random Walk Explorer </h2>
 <div id="data"></div>
 <div id="random_walk"></div>
