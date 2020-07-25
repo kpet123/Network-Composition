@@ -1,3 +1,7 @@
+# System imports
+import json
+import os
+
 #Flask-related imports
 from flask import Flask
 from flask import render_template
@@ -5,16 +9,19 @@ from flask import Response, request, jsonify
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
-#general imports
-import music21
+# Network imports
+from cdlib import algorithms.hierarchical_link_community
 import networkx as nx
 import igraph as ig
-import matplotlib.pyplot as plt
-import numpy as np
 import mnet
 from networkx.readwrite import json_graph
-import json
-import os
+
+# General imports
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Other imports
+import music21
 
 '''
 Declare app
@@ -149,8 +156,16 @@ def make_communities(g, method):
 
 
     if method == "infomap":
-        infomap_partition = g.community_infomap(edge_weights='weight')
-        infomap_partition_assignment = {g.vs[i]['name'] : infomap_partition.membership[i] 
+        edge_tuples = [edge.tuple for edge in g.es]
+        im = infomap.Infomap()
+        im.add_links(edge_tuples)
+        im.run("-d -N 10")
+        modules = im.get_multilevel_modules()
+        
+        # igraph non-hierarchical version
+        #infomap_partition = g.community_infomap(edge_weights='weight')
+        
+        infomap_partition_assignment = {g.vs[i]['name'] : modules[i] 
                         for i in range(g.vcount())}
         
         return infomap_partition_assignment
@@ -165,14 +180,21 @@ def make_communities(g, method):
     
 
     elif method == 'louvain':
-        louvain_partition = g.community_multilevel(weights=[e['weight'] for e in g.es])
-        louvain_partition_assignment = {g.vs[i]['name'] : louvain_partition.membership[i] 
+        louvain_partition = g.community_multilevel(weights=[e['weight'] for e in g.es], return_levels=True)
+        louvain_partition_assignment = {g.vs[i]['name'] : [level.membership[i] for level in louvain_partition]
                         for i in range(len(g.vs))}
         
         return louvain_partition_assignment
 
     elif method == 'HLC':
-        pass
+        coms = algorithms.hierarchical_link_community(g)
+        
+        #return coms.communities
+
+        ### TRYING HLC MODULE
+        import hlc 
+        os.system('python hlc -o temp_hlc_clusters.txt' )
+
 
 def helper_community_detection(graph, method):
     '''
@@ -193,32 +215,36 @@ def helper_community_detection(graph, method):
             Networkx network object with added community data
     '''
     print("********* Inside Helper Comm Function*****")
+  
+    # igraph methods' conversion
+    if method == 'louvain':
+        # Note louvain does not apply for directed networks, be wary of the results!
+        g = ig.Graph.TupleList(graph.edges(), directed=False)
+    else:
+        g = ig.Graph.TupleList(graph.edges(), directed=True)
+    for edge in g.es:
+        src = g.vs[edge.tuple[0]]['name']
+        tgt = g.vs[edge.tuple[1]]['name']
+        try:
+            edge['weight'] = graph.get_edge_data(src, tgt)['weight']
+        except TypeError:
+            edge['weight'] = 1
 
-
-    # Node methods
+    partition_data = make_communities(g, method)
+    # add partition data to graph object
     if method != 'HLC':
-        # igraph methods' conversion
-        if method == 'louvain':
-            # Note louvain does not apply for directed networks, be wary of the results!
-            g = ig.Graph.TupleList(graph.edges(), directed=False)
-        else:
-            g = ig.Graph.TupleList(graph.edges(), directed=True)
-        for edge in g.es:
-            src = g.vs[edge.tuple[0]]['name']
-            tgt = g.vs[edge.tuple[1]]['name']
-            try:
-                edge['weight'] = graph.get_edge_data(src, tgt)['weight']
-            except TypeError:
-                edge['weight'] = 1
-
-        partition_data = make_communities(g, method)
-        # add partition data to graph object
         for note in graph.nodes:
             graph.nodes[note]['comm'] = partition_data[note]
-    
-    # Link methods
     else:
-        partition_data = make_communities(graph, method)
+        for link in g.es:
+            for comm in partition_data:
+                if link.tuple in comm:
+                    # igraph edge atribute, don't need for final, used in debug
+                    g.es[link.tuple]['comm'] = partition_data.index(comm)
+                    # set as link attribute, should be easily retrievable from JSON?
+                    src = g.vs[link.tuple[0]]['name']
+                    tgt = g.vs[link.tuple[1]]['name']
+                    graph.edges[(src, tgt)]['comm'] = partition_data.index(comm)
     
     
     return graph
@@ -277,6 +303,7 @@ key = 'A'
 
 #****************
 #Current graph encoding, use to recalculate graph 
+
 #****************
 cur_graph_encoding = "basic"
 
@@ -314,6 +341,7 @@ graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
 #Random walk (JSON)
 #Random walk implementation needs MultiDigraph to work
 #Do not convert to weighted graph before generating random walk
+
 #****************
 random_walk = make_randomwalk_json(graph, cur_walk_encoding)
 
@@ -351,7 +379,11 @@ def default(name=None):
     global pitchdict
     global cur_community
     global graph
+
     global changed_edges
+
+    global cur_walk_encoding
+
 
     return render_template('index.html', data=data, key=key,\
                  grouping = grouping, offsets=offsets,
@@ -376,7 +408,9 @@ def shiftEncoding(name=None):
     global cur_community
     global graph
     global cur_walk_encoding
+
     global changed_edges
+
 
     print("Filename is ", filename)
 	#Send back filename, key, grouping and offsets
@@ -443,6 +477,7 @@ def shiftCommunity(name=None):
     global changed_edges
 
 
+
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
     new_data = data
@@ -490,6 +525,7 @@ def success():
     global cur_community
     global graph
     global cur_walk_encoding
+
     global changed_edges
 
 
@@ -528,9 +564,11 @@ def changeparams():
     global cur_graph_encoding
     global pitchdict
     global cur_community
+
     global graph 
     global cur_walk_encoding
     global changed_edges
+
 
 
     #Get requested values
