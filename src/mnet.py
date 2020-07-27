@@ -43,6 +43,7 @@ Return:
 #		return nodelst, pitchdict
 
 def convert_basic(lst):
+    rwlst = []
     nodelst=[]
     convert_note = lambda x: x.name+str(x.octave)
     for note in lst:
@@ -53,10 +54,15 @@ def convert_basic(lst):
             node = convert_note(note)
         else:
             print("ERROR UNHANDLED TYPE ", type(note))
+     
+        rwlst.append({"note" : node, \
+                      "duration": int(note.duration.quarterLength*1000),\
+                      "id": node})
+
         nodelst.append(node)
             
     pitchdict = dict((zip(nodelst, nodelst)))
-    return nodelst, pitchdict
+    return nodelst, pitchdict, rwlst
 
 '''
 *** convert_grouping ***
@@ -131,18 +137,25 @@ def convert_grouping(lst, grouping):
     return nodelst, transition_lst, pitchdict
 
 def convert_chord_note(chord_lst, key):
+    #do time consuming operation with list comprehension
+    rn_lst = [music21.roman.romanNumeralFromChord(chord,\
+         music21.key.Key(key)) for chord in chord_lst]
     pitchdict = {}
     nodelst=[]
-    for chord in chord_lst:
+
+    i=0
+    while i < len(chord_lst):
+        chord = chord_lst[i]
         #extract melody
         mel = max(chord.pitches)
         #extract harmony
         harm = chord.remove(mel)
-        rn = music21.roman.romanNumeralFromChord(chord, music21.key.Key(key))
+        rn = rn_lst[i]
         rn=str(rn).split()[1]
         node = str(mel)+"_"+rn
         nodelst.append(node)
-        pitchdict[node] = str(mel)    
+        pitchdict[node] = str(mel)  
+        i += 1  
     return nodelst, pitchdict
 
 

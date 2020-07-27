@@ -62,10 +62,10 @@ def make_graph_from_file(filename, encoding, key, offsets, grouping):
                 break
 				 #ideally throw error if there is no part, need to reupload file
         topline_notes =list(topline.recurse().notes)
-        nodelst_basic, pitchdict =mnet.convert_basic(topline_notes)
+        nodelst_basic, pitchdict, og_walk =mnet.convert_basic(topline_notes)
         g_basic=mnet.create_graph(nodelst_basic)
 		 
-        return g_basic, pitchdict
+        return g_basic, pitchdict, og_walk
 
 
 #grouped graph, returns multiedge graph and pitch dictionary
@@ -108,7 +108,7 @@ def make_graph_from_file(filename, encoding, key, offsets, grouping):
 						chord_lst,offsets, key)
         g_group=mnet.create_graph(nodelst_group)
 		 
-        return g_group, pitchdict
+        return g_group, pitchdict, og_walk
 
 #Other Functions:
 
@@ -124,7 +124,7 @@ def make_randomwalk_json(graph, encoding_method):
     # Community label should also be added
     for i in range(len(tune)):
         rwlst.append({"note" : tune[i].pitch.nameWithOctave, \
-        			  "duration": tune[i].duration.quarterLength*1000,\
+        			  "duration": int(tune[i].duration.quarterLength*1000),\
 					  "id": randomwalk[i]})
     return rwlst
 
@@ -282,27 +282,26 @@ key = 'A'
 
 
 #Current graph encoding, use to recalculate graph 
-cur_graph_encoding = "grouped"
+cur_graph_encoding = "basic"
 
 #Community designator
 cur_community = "louvain" 
 
 #Current random walk encoding, determines rhythm for random walk
-cur_walk_encoding = mnet.group_strto16thnote
+cur_walk_encoding = mnet.strto16thnote
 #Grouping and offset should be joined into 1 variable ideally - grouping
 #refers to measure index, while offset refers to note index
 grouping = [1, 5, 11, 27, 37, 49, 61, 75, "end"]
 offsets=[0.0, 16.0, 40.0, 104.0,144.0, 162.0, 180.0, 201.0, "end"]
 
 #Create initial graph
-graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
-					 key, offsets, grouping)
+graph, pitchdict, og_walk = make_graph_from_file(filename, cur_graph_encoding, key, offsets, grouping)
 
 #Random walk implementation needs MultiDigraph to work
 #Do not convert to weighted graph before generating random walk
-random_walk = make_randomwalk_json(graph, mnet.group_strto16thnote)
+random_walk = og_walk #make_randomwalk_json(graph, mnet.group_strto16thnote)
 
-
+print(random_walk)
 #Convert graph to weighted graph with pitch names+ comm labels
 
 data = json_graph.node_link_data(make_visualizable_graph(\
