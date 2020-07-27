@@ -281,7 +281,7 @@ def group_strto16thnote(randomwalk):
         #note duration
         if group_cur !=group_next:
             #print("different")
-            n.duration.quarterLength =2
+            n.duration.quarterLength =1
         else:
             n.duration.quarterLength = .25 
         
@@ -353,7 +353,7 @@ def str_rn_group(randomwalk):
         
     notelist = []
     i=0
-    randomwalk.append('pad long boo')
+    randomwalk.append('pad_long_boo')
     #print(len(randomwalk))
     while i < len(randomwalk)-1:
         
@@ -366,11 +366,11 @@ def str_rn_group(randomwalk):
         group_cur = string[2]
         node_next = randomwalk[i+1]
         #print(node_next)
-        group_next = node_next.split()[2]
+        group_next = node_next.split("_")[2]
         #print(group_cur, group_next)
         #note duration
         if group_cur !=group_next:
-            n.duration.quarterLength =2
+            n.duration.quarterLength =1
         else:
             n.duration.quarterLength = .25 
         
