@@ -149,6 +149,33 @@ var change_weight = function() {
     });
 };
 
+//Change Graph generation parameters
+var change_walk_encoding = function() {
+         var form_data = {
+            walk_type: $('#walk-encoding-options').val(),
+         };
+         console.log("in change params function") 
+         console.log(form_data)
+         $.ajax({
+            type: 'POST',
+            url:'/change_walk_encoding',
+            data: form_data,
+        //    contentType: false,
+        //    cache: false,
+        //    processData: false,
+            success: function(data) {
+                location.reload();
+                console.log('Success!');
+            },
+         error: function(request, status, error){
+            console.log("Error");
+            console.log(request)
+            console.log(status)
+            console.log(error)
+    }
+     
+    });
+};
 
 //in #(document).ready,  you can define responses to 
 //actions (e.g. button clicks) executed from 
@@ -214,6 +241,12 @@ $(document).ready(function(){
         console.log("in change weight document ready")
         change_weight();    
     }); 
+    //Change walk enoding option
+    $('#change-walk-btn').click( function(){
+        console.log("in change walk document ready");
+        change_walk_encoding();
+
+    });
 
 })
 

@@ -18,6 +18,10 @@ div.gen_info {
 background-color: #78b3e0;
 
 }
+
+p.setting {
+   background-color: lightgreen;
+}
 </style>
 <body>
 
@@ -32,8 +36,8 @@ background-color: #78b3e0;
 		{{data}}
 		</div>
 	<h2>Random Walk is (hidden in final)</h2>
-		<div id="randomwalk_test" class="scroll_div">
-			{{random_walk}}
+		<div id="walk_test" class="scroll_div">
+			{{walk}}
 		</div>
 	<h2>Key is (Part of form in final)</h2>
 		<div id="key_test">
@@ -150,10 +154,14 @@ Click the below button to change visualized communities
         <button id="hlc_vis">Change to Hierarchical Links</button>
     </fieldset>
 </div>
-
 <!-- Embedded Observable --!>
-<h2> Press to Start Random Walk </h2>
-<div id="start_walk"></div>
+<h2> Press to Start Walk </h2>
+<p class="setting">
+ Current Setting is :  {{setting}}
+</p>
+<div>
+    <span id="start_walk"></span>
+</div>
 <div id="chart"></div>
 <h2> Visualization Parameters </h2>
 <div id="radius"></div>
@@ -175,6 +183,25 @@ Click the below button to change visualized communities
     </form>
 </div>
 <div>
+
+<h2>
+Generate Composition from a random walk of this graph. To create the random walk, choose an option below and click "Submit"
+</h2>
+<div class = "gen_info">
+    <form >
+      <fieldset>
+      <label for="walk-encoding-options">
+            Choose Rhythm of Generated Composition:
+      </label>
+      <select id="walk-encoding-options" name="walk-encoding-options">
+        <option value="ignore-comm">Ignore Communities</option>
+        <option value="consider-comm">Consider Communities</option>
+
+      </select>
+      <button id = "change-walk-btn" type="button">Submit</button>
+      </fieldset>
+    </form>
+</div>
 <h2> Data and Random Walk Explorer </h2>
 <div id="data"></div>
 <div id="random_walk"></div>
@@ -186,14 +213,15 @@ Click the below button to change visualized communities
 
 	
 	var data = {{data|tojson}}//corresponds Observable cell
-	var random_walk = {{random_walk|tojson}}//corresponds to Observable
+	var walk = {{walk|tojson}}//corresponds to Observable
 	var key = {{key|tojson}}
 	var grouping = {{grouping|tojson}}
 	var offsets = {{offsets|tojson}}
+    var setting = {{setting|tojson}}
 	//any information coming in needs to be converted to json 
 	//(to my knowlege) 
     console.log("In definiing area")
-    console.log(random_walk)
+    console.log(walk)
 </script>
 
 

@@ -43,7 +43,7 @@ Return:
 #		return nodelst, pitchdict
 
 def convert_basic(lst):
-    rwlst = []
+    melody_walk = []
     nodelst=[]
     convert_note = lambda x: x.name+str(x.octave)
     for note in lst:
@@ -55,14 +55,14 @@ def convert_basic(lst):
         else:
             print("ERROR UNHANDLED TYPE ", type(note))
      
-        rwlst.append({"note" : node, \
+        melody_walk.append({"note" : node, \
                       "duration": int(note.duration.quarterLength*1000),\
                       "id": node})
 
         nodelst.append(node)
             
     pitchdict = dict((zip(nodelst, nodelst)))
-    return nodelst, pitchdict, rwlst
+    return nodelst, pitchdict, melody_walk
 
 '''
 *** convert_grouping ***
@@ -78,33 +78,9 @@ Return:
  
 '''
 
-#def convert_grouping(lst, grouping):
-#    convert_note = lambda x: x.name+str(x.octave)
-#    pitchdict = {}
-#    nodelst=[] #list to store nodes
-#    #add first node
-#    transition_lst=[]
-#    i=0
-#    g=0
-#    node_group=grouping[g]
-#    while i < len(lst):
-#        note = lst[i]
-#        node_id = convert_note(note)
-#        #print(getMeasureFromNote(note))
-#        if getMeasureFromNote(note) == str(grouping[g]):
-#            node_group = grouping[g]
-#            g+=1
-#            if i !=0:
-#                transition_lst.append((nodelst[i-1],\
-#                     str(node_group)+"_"+str(node_id)))
-#        node = str(node_group)+"_"+str(node_id)
-#        nodelst.append(node)
-#        pitchdict[node]= str(node_id)
-#        i +=1
-#    return nodelst, transition_lst, pitchdict
-
 
 def convert_grouping(lst, grouping):
+    melody_walk = []
     convert_note = lambda x: x.name+str(x.octave)
     pitchdict = {}
     nodelst=[] #list to store nodes
@@ -133,14 +109,22 @@ def convert_grouping(lst, grouping):
         node = str(node_group)+"_"+str(node_id)
         nodelst.append(node)
         pitchdict[node]= str(node_id)
+
+
+        #create original tune for display on graph 
+
+        melody_walk.append({"note" : node_id, \
+                      "duration": int(note.duration.quarterLength*1000),\
+                      "id": node})
         i +=1
-    return nodelst, transition_lst, pitchdict
+    return nodelst, transition_lst, pitchdict, melody_walk
 
 def convert_chord_note(chord_lst, key):
     #do time consuming operation with list comprehension
     rn_lst = [music21.roman.romanNumeralFromChord(chord,\
          music21.key.Key(key)) for chord in chord_lst]
     pitchdict = {}
+    melody_walk = []
     nodelst=[]
 
     i=0
@@ -155,8 +139,14 @@ def convert_chord_note(chord_lst, key):
         node = str(mel)+"_"+rn
         nodelst.append(node)
         pitchdict[node] = str(mel)  
+
+        #melody of original piece as displayed on graph
+        melody_walk.append({"note" : str(mel), \
+                      "duration": int(chord.duration.quarterLength*1000),\
+                      "id": node})
+
         i += 1  
-    return nodelst, pitchdict
+    return nodelst, pitchdict, melody_walk
 
 
 '''
@@ -166,6 +156,7 @@ def convert_grouped_rn(chord_lst, offsets, key):
     pitchdict = {}
     nodelst=[]
     transition_lst=[]
+    melody_walk = []
     i=0
     g=1
     node_group=offsets[0]    
@@ -198,10 +189,16 @@ def convert_grouped_rn(chord_lst, offsets, key):
         node = str(mel)+"_"+rn+"_"+str(node_group)
         nodelst.append(node)
         pitchdict[node]=str(mel)
+
+        melody_walk.append({"note" : str(mel), \
+                      "duration": int(chord.duration.quarterLength*1000),\
+                      "id": node})
+
+
         i +=1
         
 
-    return nodelst, transition_lst, pitchdict
+    return nodelst, transition_lst, pitchdict, melody_walk
 
 
 '''

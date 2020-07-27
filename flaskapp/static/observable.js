@@ -39,7 +39,7 @@ const main = new Runtime().module(notebook, (name) => {
 console.log("Testing in Observable- key is :")
 console.log(key)
 console.log(data)
-main.redefine("random_walk", random_walk);
+main.redefine("random_walk", walk);
 main.redefine("data", data);
 
 

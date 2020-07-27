@@ -81,12 +81,12 @@ def make_graph_from_file(filename, encoding, key, offsets, grouping):
                 break
 				#ideally throw error if there is no part, need to reupload file
         topline_notes =list(topline.recurse().notes)
-        nodelst_grouped, transition_lst, pitchdict =mnet.convert_grouping(\
-						topline_notes, grouping)
+        nodelst_grouped, transition_lst, pitchdict, og_walk  = \
+                mnet.convert_grouping(topline_notes, grouping)
         print("transition list is ", transition_lst)
         g_group=mnet.create_graph(nodelst_grouped)
 		 
-        return g_group, pitchdict
+        return g_group, pitchdict, og_walk
 
 
 
@@ -94,18 +94,19 @@ def make_graph_from_file(filename, encoding, key, offsets, grouping):
     if encoding == "rn": 
         s = music21.corpus.parse(filename)
         chord_lst = list(s.chordify().recurse().notes)
-        nodelst, pitchdict  = mnet.convert_chord_note(chord_lst, key)
+        nodelst, pitchdict, og_walk  = mnet.convert_chord_note(\
+                chord_lst, key)
         g_rn=mnet.create_graph(nodelst)
 
         print("roman numeral converted")	
-        return g_rn, pitchdict
+        return g_rn, pitchdict, og_walk
 
 #Grouped RN graph, returns multiedge graph + pitch labels
     if encoding == "grouped_rn":  
         s = music21.corpus.parse(filename)
         chord_lst = s.flat.chordify().recurse().notes
-        nodelst_group, transition_edges, pitchdict=mnet.convert_grouped_rn(\
-						chord_lst,offsets, key)
+        nodelst_group, transition_edges, pitchdict, og_walk = \
+            mnet.convert_grouped_rn(chord_lst,offsets, key)
         g_group=mnet.create_graph(nodelst_group)
 		 
         return g_group, pitchdict, og_walk
@@ -297,18 +298,20 @@ offsets=[0.0, 16.0, 40.0, 104.0,144.0, 162.0, 180.0, 201.0, "end"]
 #Create initial graph
 graph, pitchdict, og_walk = make_graph_from_file(filename, cur_graph_encoding, key, offsets, grouping)
 
+#Walk can be original melody or randomly generated one
 #Random walk implementation needs MultiDigraph to work
 #Do not convert to weighted graph before generating random walk
-random_walk = og_walk #make_randomwalk_json(graph, mnet.group_strto16thnote)
+walk = og_walk #make_randomwalk_json(graph, mnet.group_strto16thnote)
 
-print(random_walk)
+print(walk)
 #Convert graph to weighted graph with pitch names+ comm labels
 
 data = json_graph.node_link_data(make_visualizable_graph(\
             graph, pitchdict, cur_community) )
-	
 
-print("randomwalk is :", type(random_walk))
+
+#Setting of playback. Can either play original tune or random walk
+setting = "Original Melody"	
 '''
 *****************************************
 App Routing Section. 
@@ -326,14 +329,16 @@ def default(name=None):
     global key
     global grouping
     global offsets
-    global random_walk
+    global walk
     global cur_graph_encoding
     global pitchdict
     global cur_community
     global graph
     global cur_walk_encoding
+    global setting
 
-    return render_template('index.html', data=data, key=key, grouping = grouping,			offsets=offsets, random_walk=random_walk)   
+    return render_template('index.html', data=data, key=key,\
+         grouping=grouping, offsets=offsets, walk=walk, setting=setting)   
 
     
 #Regenerates the graph based on the currently used 
@@ -347,7 +352,7 @@ def shiftEncoding(name=None):
     global key
     global grouping
     global offsets
-    global random_walk
+    global walk
     global cur_graph_encoding
     global pitchdict
     global cur_community
@@ -358,34 +363,27 @@ def shiftEncoding(name=None):
     print("Filename is ", filename)
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
-    print(msg)
-	#for now.....
-    new_data = data
-    new_key= key
-    new_grouping = grouping
-    new_offsets = offsets
-    new_randomwalk = random_walk
 
 	#Change to Grouped
     if msg == 1:
         cur_graph_encoding = "grouped"
-        cur_walk_encoding = mnet.group_strto16thnote
+     
  	#Change to Basic
     if msg == 2:
         cur_graph_encoding = "basic"
-        cur_walk_encoding = mnet.strto16thnote
+        #cur_walk_encoding = mnet.strto16thnote
 	#Change to Roman Numeral -- this is very slow, I need to optimize code
     if msg == 3:
         cur_graph_encoding = "rn"
-        cur_walk_encoding = mnet.str_rn
+        #cur_walk_encoding = mnet.str_rn
 	#Changed to Group Roman Numeral
     if msg ==4:
         cur_graph_encoding = "grouped_rn"   
-        cur_walk_encoding = mnet.str_rn_group
+        #cur_walk_encoding = mnet.str_rn_group
 
     #Generate graph and pitchlist
-    graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
-                     key, offsets, grouping)
+    graph, pitchdict, og_walk = make_graph_from_file(filename,\
+             cur_graph_encoding, key, offsets, grouping)
     data = json_graph.node_link_data(make_visualizable_graph(\
                 graph, pitchdict, cur_community))
 
@@ -395,12 +393,12 @@ def shiftEncoding(name=None):
     json.dump(data, out_file) 
     out_file.close() 
 
-
-    print("Current walk encoding is ", str(cur_walk_encoding))
-    random_walk = make_randomwalk_json(graph, cur_walk_encoding)
+    #Set walk to original tune
+    walk = og_walk #make_randomwalk_json(graph, cur_walk_encoding)
+    setting = "Original Melody"
     #Return data through javascript function
-    return jsonify(data = data, random_walk = random_walk)
-	#return render_template('index.html', data=json_data)
+    return jsonify(data = data, walk = walk, setting=setting)
+
 
 @app.route('/shiftCommunity', methods=['GET', 'POST'])
 def shiftCommunity(name=None):
@@ -411,7 +409,7 @@ def shiftCommunity(name=None):
     global key
     global grouping
     global offsets
-    global random_walk
+    global walk
     global cur_graph_encoding
     global pitchdict
     global cur_community
@@ -458,12 +456,13 @@ def success():
     global key
     global grouping
     global offsets
-    global random_walk
+    global walk
     global cur_graph_encoding
     global pitchdict
     global cur_community
     global graph
     global cur_walk_encoding
+    global setting
 
     print("in update ajax method")
     f = request.files['file'] 
@@ -473,17 +472,17 @@ def success():
 
     f.save("../library/"+f.filename)
     filename = f.filename
-    graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
-                 key, offsets, grouping)
+    graph, pitchdict, og_walk = make_graph_from_file(filename,\
+         cur_graph_encoding, key, offsets, grouping)
     data = json_graph.node_link_data(make_visualizable_graph(\
                  graph, pitchdict, cur_community))
-    random_walk = make_randomwalk_json(graph, cur_walk_encoding)
-    print("code in success executed") 
-    return jsonify(data=data, raondom_walk = random_walk)
+    walk = og_walk
+    setting = "Original Melody"
+    return jsonify(data=data, walk = walk, setting=setting)
 
 
 
-#TODO: implement this
+
 #Reads in additional parameters supplied by user.
 #If applicable, changes graph and random walk accordingly
 @app.route('/changeparams', methods = ['POST'])
@@ -494,7 +493,7 @@ def changeparams():
     global key
     global grouping
     global offsets
-    global random_walk
+    global walk
     global cur_graph_encoding
     global pitchdict
     global cur_community
@@ -520,19 +519,72 @@ def changeparams():
 
     print("grouping is ", grouping)   
     # Recalculate data and random walk
-    graph, pitchdict = make_graph_from_file(filename, cur_graph_encoding,\
-                 key, offsets, grouping)
+    graph, pitchdict, og_walk = make_graph_from_file(filename,\
+         cur_graph_encoding,key, offsets, grouping)
     data = json_graph.node_link_data(make_visualizable_graph(\
                  graph, pitchdict, cur_community))
-    random_walk = make_randomwalk_json(graph, cur_walk_encoding)
-
+    walk = og_walk #make_randomwalk_json(graph, cur_walk_encoding)
+    setting="Original Melody"
     
     print("Grouping is ", grouping[1])
 
 
-    return jsonify(data = data, random_walk = random_walk, \
-                grouping = grouping, key = key, offsets = offsets)
+    return jsonify(data = data, walk = walk, \
+                grouping = grouping, key=key, offsets=offsets,\
+                         setting=setting)
 
+
+#Changes mode of random walk to ignore or consider community
+@app.route('/change_walk_encoding', methods = ['POST'])
+def change_walk_encoding():
+#    if request.method == 'POST':
+    global data
+    global filename
+    global key
+    global grouping
+    global offsets
+    global walk
+    global cur_graph_encoding
+    global pitchdict
+    global cur_community
+    global graph
+    global cur_walk_encoding
+    global setting
+
+    #Get requested values
+
+    encoding_option = request.form['walk_type']  
+    print(encoding_option)
+
+    #Decide walk encoding based on parameters.
+
+    if encoding_option == "ignore-comm":
+        if cur_graph_encoding == "basic":
+            cur_walk_encoding = mnet.strto16thnote 
+        elif cur_graph_encoding == "grouped":
+            cur_walk_encoding = mnet.group_strto16thnote
+        elif cur_graph_encoding == "rn":
+            cur_walk_encoding = mnet.str_rn
+        elif cur_graph_encoding == "group_rn":
+            cur_walk_encoding = mnet.str_rn_group  
+        else:
+            print("graph encoding not recognized")
+    elif encoding_option == "consider-comm":
+        pass 
+    print("grouping is ", grouping)   
+    # Recalculate data and random walk
+    graph, pitchdict, og_walk = make_graph_from_file(filename,\
+         cur_graph_encoding,key, offsets, grouping)
+    data = json_graph.node_link_data(make_visualizable_graph(\
+                 graph, pitchdict, cur_community))
+    walk = make_randomwalk_json(graph, cur_walk_encoding)
+    setting="Random Walk"
+    
+    print("Grouping is ", grouping[1])
+
+
+    return jsonify(data = data, walk = walk, grouping = grouping, \
+                key = key, offsets = offsets, setting = setting)
 
 
  
