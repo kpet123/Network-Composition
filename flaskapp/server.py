@@ -38,12 +38,12 @@ localCorpus.addPath('../library/')
 music21.corpus.cacheMetadata()
 
 '''
-***************
+******************
 Define Functions
 
 Create graphs based on the currently used piece (filename)
 Generate Random walk from a graph and a given encoding
-****************
+*******************
 '''
 #Graph making functions - can apply to any file in ../library
 
