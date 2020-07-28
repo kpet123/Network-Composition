@@ -19,7 +19,8 @@ const renders = {
     "viewof distance": "#distance",
     "passed_src": "#chosen_source",
     "passed_dst": "#chosen_target",
-    "passed_weight": "#cur_weight"
+    "passed_weight": "#cur_weight",
+    "viewof speed": "#speed",
   };
 //Code adapted from
 //https://talk.observablehq.com/t/embedding-only-parts-of-notebook/2470/4
@@ -38,7 +39,7 @@ const main = new Runtime().module(notebook, (name) => {
 console.log("Testing in Observable- key is :")
 console.log(key)
 console.log(data)
-main.redefine("random_walk", random_walk);
+main.redefine("random_walk", walk);
 main.redefine("data", data);
 
 
