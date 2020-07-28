@@ -20,7 +20,8 @@ const renders = {
     "viewof distance": "#distance",
     "passed_src": "#chosen_source",
     "passed_dst": "#chosen_target",
-    "passed_weight": "#cur_weight"
+    "passed_weight": "#cur_weight",
+    "viewof speed": "#speed",
   };
 //Code adapted from
 //https://talk.observablehq.com/t/embedding-only-parts-of-notebook/2470/4

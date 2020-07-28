@@ -18,6 +18,14 @@ General Functions
 def getMeasureFromNote(note_in_stream):
     return str(note_in_stream.activeSite).split()[1]
 
+#Convert music21 pitch notation for flats ('-') to Tone.js notation('b')
+def convert_flat_js(walk):
+    i=0
+    while i < len(walk):
+        walk[i]["note"].replace('-', 'b')
+        i += 1
+    return walk
+
 '''
 *******************
 #Conversion Functions: turn list of notes into list of nodes
@@ -163,9 +171,9 @@ def convert_grouped_rn(chord_lst, offsets, key):
     
     while i < len(chord_lst):
         
-        '''
-        Extract note + rn
-        '''
+        
+        #Extract note + rn
+       
         chord=chord_lst[i]
         #extract melody
         mel = max(chord.pitches)
@@ -390,8 +398,176 @@ def str_rn_group(randomwalk):
     return notelist  
 
 
+'''
+Takes in standardized Random Walk (list of dictionaries [{id, note, duration}])
+The duration parameter is overwritten by a new duration calculated by community transition status
+
+
+
+noteLengthAssign: list with lengths of note types. Default length, then ascending for community changes
+        levels: layers of hirarchical structure
+
+graph: graph with community labels. JSON dictionary form
+
+Long position: where longer note should be places (end of current community or beginning of next community)
 
 '''
+def str_commmunity_rhythm(randomwalk, graph, \
+        noteLengthAssign = [.25, 1, .5], long_position = 'cur_comm'):
+        
+        
+    #randomwalk.append('pad long boo')
+    mellst = []
+    lyriclst = []
+    i = 0
+    while i < len(randomwalk)-1:
+        #print(i)
+        node = randomwalk[i]
+        mel = node.split()[0]
+        n = music21.note.Note(mel)
+        com_lst= graph[node['id']]['comm']
+        n.lyric = community
+        lyriclst.append(community)
+        
+        #determine community equality
+        node_next = randomwalk[i+1]
+        community_next_lst = graph[node_next['id']]['comm']
+        
+        
+        if com_lst == com_next_lst:
+
+            n.duration.quarterLength = noteLengthAssign[0]
+            #print(noteLengthAssign[0])
+            mellst.append(n)
+        else:
+            
+
+            p=0
+            pmax = min([len(com_lst), len(com_next_lst)])
+            while p < pmax:
+                print("p is ", p)
+                print(com_lst)
+                print(com_next_lst)
+                if com_lst[p] != com_next_lst[p]: #if group not equal
+                    emph_note_len = noteLengthAssign[p+1] 
+                    print("Assigned", noteLengthAssign[p+1])
+                    break
+                p += 1
+
+            #next comm condition
+            if long_position == 'next_comm':
+                
+                n.duration.quarterLength = noteLengthAssign[0]
+                mellst.append(n)
+                
+                i += 1 # go to next note
+                #print(i)
+                nextNote = music21.note.Note(randomwalk[i].split()[0])
+                nextNote.duration.quarterLength = emph_note_len
+                print("longer note: ", emph_note_len)
+                nextNote.lyric=community_next
+                mellst.append(nextNote)
+
+                    
+            elif long_position == 'cur_comm':
+               
+                n.duration.quarterLength = emph_note_len
+            
+                mellst.append(n)
+                    
+                
+
+        i +=1
+        
+    
+    #Assign last note as whole note
+    node = randomwalk[i]
+    mel = node.split()[0]
+    n = music21.note.Note(mel)
+    community= nodeToGroupDict[node]
+    n.lyric = community
+    lyriclst.append(community)
+    n.duration.quarterLength = 4  
+    mellst.append(n)
+  
+    return mellst, lyriclst
+
+
+
+def str_commmunity_rhythm_JSON(randomwalk, graph, \
+        noteLengthAssign = [.25, .5, .125], long_position = 'cur_comm'):
+    
+    print("graph is \n:", graph)
+    #create nodeToGroupDict:
+    nodeToGroupDict={}
+    for node in graph['nodes']:
+          
+        nodeToGroupDict[node['id']] = node['comm']
+        
+    #randomwalk.append('pad long boo')
+    i = 0
+    while i < len(randomwalk)-1:
+        #print(i)
+        nodeID = randomwalk[i]['id']
+        mel = randomwalk[i]['note']
+        community= nodeToGroupDict[nodeID]
+       
+       
+        #determine community equality
+        com_lst = nodeToGroupDict[randomwalk[i]['id']]
+        com_next_lst = nodeToGroupDict[randomwalk[i+1]['id']]
+       
+        if com_lst == com_next_lst:
+            #reassign random walk duration to default 
+            randomwalk[i]['duration']= int(noteLengthAssign[0]*1000)
+
+        else:
+            
+
+            p=0
+            pmax = min([len(com_lst), len(com_next_lst)])
+            while p < pmax:
+                #print("p is ", p)
+                #print(com_lst)
+                #print(com_next_lst)
+                if com_lst[p] != com_next_lst[p]: #if group not equal
+                    emph_note_len = noteLengthAssign[p+1] 
+                    break
+                p += 1
+
+            #next comm condition-CURRENTLY DOES NOT WORK NEEDS REFACTORING:W
+
+            if long_position == 'next_comm':
+                
+                n.duration.quarterLength = noteLengthAssign[0]
+                mellst.append(n)
+                
+                i += 1 # go to next note
+                #print(i)
+                nextNote = music21.note.Note(randomwalk[i].split()[0])
+                nextNote.duration.quarterLength = int(emph_note_len*1000)
+                #print("longer note: ", emph_note_len)
+                nextNote.lyric=community_next
+                mellst.append(nextNote)
+
+                    
+            elif long_position == 'cur_comm':
+               
+                randomwalk[i]['duration'] = int(emph_note_len*1000)
+        
+        i +=1
+    
+    #Assign last note as whole note
+    nodeID = randomwalk[i]['id']
+    mel = randomwalk[i]['note']
+    community= nodeToGroupDict[nodeID]
+    randomwalk[i]['duration'] = 4*1000
+         
+    return randomwalk
+ 
+
+'''
+
 Assigns note lengths based on community strucuture. Every time a community switches, note will be lengthend accoridng to 
 noteLengthAssign. 
 
@@ -402,7 +578,7 @@ nodeToGroupDict: Dictionary with community assignment of each node. Assignments 
                 b is embedded in a, and c is embedded in b
 Long position: where longer note should be places (end of current community or beginning of next community)
 
-'''
+
 def str_commmunity_rhythm(randomwalk, noteLengthAssign, nodeToGroupDict, long_position = 'cur_comm'):
         
         
@@ -474,7 +650,7 @@ def str_commmunity_rhythm(randomwalk, noteLengthAssign, nodeToGroupDict, long_po
   
     return mellst, lyriclst
     
-    
+'''    
     
     
 #Convert list of randomwalk to stream

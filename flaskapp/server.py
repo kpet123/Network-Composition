@@ -127,6 +127,9 @@ def make_randomwalk_json(graph, encoding_method):
         rwlst.append({"note" : tune[i].pitch.nameWithOctave, \
         			  "duration": int(tune[i].duration.quarterLength*1000),\
 					  "id": randomwalk[i]})
+    
+    #replace '-' with 'b'
+    rwlst = mnet.convert_flat_js(rwlst)
     return rwlst
 
 def make_communities(g, method): 
@@ -301,7 +304,7 @@ graph, pitchdict, og_walk = make_graph_from_file(filename, cur_graph_encoding, k
 #Walk can be original melody or randomly generated one
 #Random walk implementation needs MultiDigraph to work
 #Do not convert to weighted graph before generating random walk
-walk = og_walk #make_randomwalk_json(graph, mnet.group_strto16thnote)
+walk = mnet.convert_flat_js(og_walk) #make_randomwalk_json(graph, mnet.group_strto16thnote)
 
 print(walk)
 #Convert graph to weighted graph with pitch names+ comm labels
@@ -394,7 +397,7 @@ def shiftEncoding(name=None):
     out_file.close() 
 
     #Set walk to original tune
-    walk = og_walk #make_randomwalk_json(graph, cur_walk_encoding)
+    walk = mnet.convert_flat_js(og_walk) #make_randomwalk_json(graph, cur_walk_encoding)
     setting = "Original Melody"
     #Return data through javascript function
     return jsonify(data = data, walk = walk, setting=setting)
@@ -476,7 +479,7 @@ def success():
          cur_graph_encoding, key, offsets, grouping)
     data = json_graph.node_link_data(make_visualizable_graph(\
                  graph, pitchdict, cur_community))
-    walk = og_walk
+    walk = mnet.convert_flat_js(og_walk)
     setting = "Original Melody"
     return jsonify(data=data, walk = walk, setting=setting)
 
@@ -523,7 +526,7 @@ def changeparams():
          cur_graph_encoding,key, offsets, grouping)
     data = json_graph.node_link_data(make_visualizable_graph(\
                  graph, pitchdict, cur_community))
-    walk = og_walk #make_randomwalk_json(graph, cur_walk_encoding)
+    walk = mnet.convert_flat_js(og_walk) #make_randomwalk_json(graph, cur_walk_encoding)
     setting="Original Melody"
     
     print("Grouping is ", grouping[1])
@@ -556,32 +559,30 @@ def change_walk_encoding():
     encoding_option = request.form['walk_type']  
     print(encoding_option)
 
+    print("graph encoding is ", cur_graph_encoding)
+    #Set nessesary globals 
+    setting="Random Walk"
+ 
     #Decide walk encoding based on parameters.
 
-    if encoding_option == "ignore-comm":
-        if cur_graph_encoding == "basic":
-            cur_walk_encoding = mnet.strto16thnote 
-        elif cur_graph_encoding == "grouped":
-            cur_walk_encoding = mnet.group_strto16thnote
-        elif cur_graph_encoding == "rn":
-            cur_walk_encoding = mnet.str_rn
-        elif cur_graph_encoding == "group_rn":
-            cur_walk_encoding = mnet.str_rn_group  
-        else:
-            print("graph encoding not recognized")
-    elif encoding_option == "consider-comm":
-        pass 
-    print("grouping is ", grouping)   
-    # Recalculate data and random walk
-    graph, pitchdict, og_walk = make_graph_from_file(filename,\
-         cur_graph_encoding,key, offsets, grouping)
-    data = json_graph.node_link_data(make_visualizable_graph(\
-                 graph, pitchdict, cur_community))
-    walk = make_randomwalk_json(graph, cur_walk_encoding)
-    setting="Random Walk"
-    
-    print("Grouping is ", grouping[1])
+    if cur_graph_encoding == "basic":
+        cur_walk_encoding = mnet.strto16thnote 
+    elif cur_graph_encoding == "grouped":
+        cur_walk_encoding = mnet.group_strto16thnote
+    elif cur_graph_encoding == "rn":
+        cur_walk_encoding = mnet.str_rn
+    elif cur_graph_encoding == "group_rn":
+        cur_walk_encoding = mnet.str_rn_group  
 
+
+    #Calculate random walk
+    walk = make_randomwalk_json(graph, cur_walk_encoding)
+   
+ 
+    #In case of community consideration, random time durations are
+    #altered to take communities into account   
+    if encoding_option == "consider-comm":
+        walk = mnet.str_commmunity_rhythm_JSON(walk, data) 
 
     return jsonify(data = data, walk = walk, grouping = grouping, \
                 key = key, offsets = offsets, setting = setting)
