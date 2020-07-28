@@ -10,10 +10,11 @@ from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 # Network imports
-from cdlib import algorithms.hierarchical_link_community
+from cdlib import algorithms
 import networkx as nx
+import infomap
 import igraph as ig
-import mnet
+import _mnet as mnet
 from networkx.readwrite import json_graph
 
 # General imports
@@ -173,7 +174,7 @@ def make_communities(g, method):
 
     elif method == "LPM":
         lpm_partition = g.community_label_propagation(weights='weight')
-        lpm_partition_assignment = {g.vs[i]['name'] : lpm_partition.membership[i] 
+        lpm_partition_assignment = {g.vs[i]['name'] : [lpm_partition.membership[i]]
                         for i in range(g.vcount())}
         
         return lpm_partition_assignment
@@ -189,11 +190,11 @@ def make_communities(g, method):
     elif method == 'HLC':
         coms = algorithms.hierarchical_link_community(g)
         
-        #return coms.communities
+        return coms.communities
 
         ### TRYING HLC MODULE
-        import hlc 
-        os.system('python hlc -o temp_hlc_clusters.txt' )
+        #import hlc 
+        #os.system('python hlc -o temp_hlc_clusters.txt' )
 
 
 def helper_community_detection(graph, method):
@@ -232,19 +233,27 @@ def helper_community_detection(graph, method):
 
     partition_data = make_communities(g, method)
     # add partition data to graph object
+    # node-based
     if method != 'HLC':
         for note in graph.nodes:
             graph.nodes[note]['comm'] = partition_data[note]
+
+
+    #link-based
     else:
         for link in g.es:
             for comm in partition_data:
                 if link.tuple in comm:
                     # igraph edge atribute, don't need for final, used in debug
-                    g.es[link.tuple]['comm'] = partition_data.index(comm)
-                    # set as link attribute, should be easily retrievable from JSON?
+                    #g.es[link.tuple]['comm'] = partition_data.index(comm)
+
+                    
+                    # set as link attribute
                     src = g.vs[link.tuple[0]]['name']
                     tgt = g.vs[link.tuple[1]]['name']
-                    graph.edges[(src, tgt)]['comm'] = partition_data.index(comm)
+                    graph.edges[(src, tgt)]['comm'] = [partition_data.index(comm)]
+        for note in graph.nodes():
+            graph.nodes[note]['comm'] = [0] 
     
     
     return graph
@@ -305,7 +314,7 @@ key = 'A'
 #Current graph encoding, use to recalculate graph 
 
 #****************
-cur_graph_encoding = "basic"
+cur_graph_encoding = "grouped"
 
 #****************	
 #Dictionary of edges changed by user + new weight
@@ -315,12 +324,15 @@ changed_edges = {}
 #****************
 #Community designator
 #****************
-cur_community = "louvain" 
+cur_community = "HLC" 
 
 #****************
 #Current random walk encoding, determines rhythm for random walk
 #****************
-cur_walk_encoding = mnet.strto16thnote
+if cur_graph_encoding == 'grouped':
+    cur_walk_encoding = mnet.group_strto16thnote    
+else:
+    cur_walk_encoding = mnet.strto16thnote
 
 
 #****************
@@ -499,6 +511,11 @@ def shiftCommunity(name=None):
  
     data = json_graph.node_link_data(make_visualizable_graph(\
             graph, pitchdict, cur_community, changed_edges) )
+    
+    #write file for testing
+    out_file = open("debug_myfile.json", "w") 
+    json.dump(data, out_file) 
+    out_file.close()  
 
     return jsonify(data = data)
 	

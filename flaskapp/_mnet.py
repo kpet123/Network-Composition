@@ -490,14 +490,29 @@ Params:
 Return:
 	graph: networkx MutliDiGraph
 '''
-def degree_increase(graph, transition_lst, increase):
-    for x in transition_lst:
+def degree_reassign(graph, edge, new_degree):
+    #improper input
+    if new_degree < 0 :
+        return None
+    
+    cur_degree= graph.number_of_edges(edge[0], edge[1])
 
-        i=0
-        while i<increase:
-            graph.add_edge(x[0], x[1])
-            i += 1
+    difference = new_degree - cur_degree
+    
+    #Enfoce change - otherwise no effect
+    if difference == 0:
+        return None
+    elif difference > 0:
+  
+        [graph.add_edge(edge[0], edge[1]) for i in range(difference)]
+
+    elif difference < 0:
+        
+        difference = difference * -1
+        ebunch = [edge]
+        [graph.remove_edges_from(ebunch) for i in range(difference)]
     return graph
+
 
 
 
