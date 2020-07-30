@@ -1,3 +1,25 @@
+#Cython files
+*.pyc
+
+#Music files
+*.mid
+*.xml
+*.mxl
+
+#Audio and video files
+*.mp3
+*.mp4
+*.wav
+
+#Other saved files
+*.json
+
+#Swap files
+*.swo
+*.swp
+
+
+#Daniel's Ignores
 .vscode/settings.json
 Daniel_Dash_Demo/dash_cyto/dash_cytoscape/__pycache__/__init__.cpython-37.pyc
 Daniel_Dash_Demo/dash_cyto/dash_cytoscape/__pycache__/_imports_.cpython-37.pyc
