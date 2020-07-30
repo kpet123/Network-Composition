@@ -1,4 +1,4 @@
-name: music-network-env
+name: dviz-dash-env
 
 channels:
  - default
@@ -7,14 +7,12 @@ channels:
  - bioconda
  - iainsgillis
 dependencies:
- - python=3.7 
- - ipykernel 
+ - python=3.7
+ - ipykernel
  - snakemake
- - numpy 
+ - numpy
  - matplotlib
  - pip
  - music21
  - networkx
- - spyder
- - python-igraph
- - scipy
+ - dash=1.13
