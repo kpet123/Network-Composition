@@ -175,10 +175,12 @@ def convert_grouped_rn(chord_lst, offsets, key):
         #Extract note + rn
        
         chord=chord_lst[i]
+        print(chord)
         #extract melody
         mel = max(chord.pitches)
+        print("melody is ", mel)
         #extract harmony
-        harm = chord.remove(mel)
+        #harm = chord.remove(mel)
         rn = music21.roman.romanNumeralFromChord(chord, music21.key.Key(key))
         rn=str(rn).split()[1]
         
@@ -355,7 +357,7 @@ def str_rn(randomwalk):
     for node in randomwalk:
 
         mel = node.split("_")[0]
-        print("mel is ", mel)
+        #print("mel is ", mel)
         n = music21.note.Note(mel)
         n.duration.quarterLength =.5
         mellst.append(n)
@@ -415,7 +417,7 @@ Long position: where longer note should be places (end of current community or b
 def str_commmunity_rhythm(randomwalk, graph, \
         noteLengthAssign = [.25, 1, .5], long_position = 'cur_comm'):
         
-        
+    print("in str_community_rhythm")        
     #randomwalk.append('pad long boo')
     mellst = []
     lyriclst = []

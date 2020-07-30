@@ -14,7 +14,8 @@ from cdlib import algorithms
 import networkx as nx
 import infomap
 import igraph as ig
-import _mnet as mnet
+#import _mnet as mnet
+import mnet
 from networkx.readwrite import json_graph
 import infomap
 # General imports
@@ -591,6 +592,7 @@ def change_walk_encoding():
     #In case of community consideration, random time durations are
     #altered to take communities into account   
     if encoding_option == "consider-comm":
+        print("consider_comm executed")
         walk = mnet.str_commmunity_rhythm_JSON(walk, data) 
 
     return jsonify(data = data, walk = walk, grouping = grouping, \
