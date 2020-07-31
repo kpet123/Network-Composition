@@ -32,9 +32,10 @@ p.setting {
 
 <h1> Music Network Visualization </h1>
 
-<h2> Step 1: Upload the score you would like to convert into a graph! 
+<h3> Upload the score you would like to convert into a graph! 
      The default graph is a reharmonized version of <i>Fantasie of Solo
-     Flute No. 1 </i> by G. F. Telemann</h2>
+     Flute No. 1 </i> by G. F. Telemann
+</h3>
 <h3> Accepts files with the extension
     <i>.xml</i>, <i>.mxl</i>, <i>.mid</i> and <i>.musicxml</i>
 </h3>
@@ -55,6 +56,30 @@ https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-
         </fieldset>
     </form>
 </div>
+<h3> This Graph is build from a score where pitches and/or harmonies are 
+     mapped to nodes and pitch/harmony transitions are mapped to links.
+     Click "Start Walk" below to hear how the score's original melody 
+     moves through the graph. Change how notes map to nodes by changing
+     graph encoding below, or show different community partitions by
+     changing community algorithmn below. You can also generate different
+     "random walks" on this graph as a form of algorithmic composition. 
+</h3>
+<!-- Embedded Observable --!>
+<h2> Press to Start Walk </h2>
+<p class="setting">
+ Current Setting is :  {{setting}}
+</p>
+<div>
+    <span id="start_walk"></span>
+</div>
+<div id="chart"></div>
+<h2> Visualization Parameters </h2>
+<div id="radius"></div>
+<div id="attraction"></div>
+<div id="distance"></div>
+<h2> Audio Playback Parameters </h2>
+<div id="speed"></div>
+<div id="wavetype"></div>
 
 <h2> Step 2: Enter Information about the piece you uploaded (you can ignore
      this if using the default data.) The key of the piece is used for 
@@ -156,22 +181,6 @@ Generate Composition from a random walk of this graph. To create the random walk
       </fieldset>
     </form>
 </div>
-<!-- Embedded Observable --!>
-<h2> Press to Start Walk </h2>
-<p class="setting">
- Current Setting is :  {{setting}}
-</p>
-<div>
-    <span id="start_walk"></span>
-</div>
-<div id="chart"></div>
-<h2> Visualization Parameters </h2>
-<div id="radius"></div>
-<div id="attraction"></div>
-<div id="distance"></div>
-<h2> Audio Playback Parameters </h2>
-<div id="speed"></div>
-<div id="wavetype"></div>
 <h2> Change Edge Weight</h2>
 <div class="gen_info">
     Chosen Edge : 
