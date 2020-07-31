@@ -168,7 +168,8 @@ def convert_grouped_rn(chord_lst, offsets, key):
     i=0
     g=1
     node_group=offsets[0]    
-    
+    rn_lst = [music21.roman.romanNumeralFromChord(chord,\
+         music21.key.Key(key)) for chord in chord_lst]    
     while i < len(chord_lst):
         
         
@@ -179,7 +180,8 @@ def convert_grouped_rn(chord_lst, offsets, key):
         mel = max(chord.pitches)
         #extract harmony
         harm = chord.remove(mel)
-        rn = music21.roman.romanNumeralFromChord(chord, music21.key.Key(key))
+        print("mel is ", mel)
+        rn = rn_lst[i]
         rn=str(rn).split()[1]
         
         '''

@@ -591,7 +591,7 @@ def change_walk_encoding():
         cur_walk_encoding = mnet.group_strto16thnote
     elif cur_graph_encoding == "rn":
         cur_walk_encoding = mnet.str_rn
-    elif cur_graph_encoding == "group_rn":
+    elif cur_graph_encoding == "grouped_rn":
         cur_walk_encoding = mnet.str_rn_group  
 
 
