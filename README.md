@@ -23,4 +23,5 @@ environemnt for the Python side of this project.
 4. Install nessesary packages with pip 
 
     pip install infomap
+    
     pip install cdlib
