@@ -22,7 +22,7 @@ def getMeasureFromNote(note_in_stream):
 def convert_flat_js(walk):
     i=0
     while i < len(walk):
-        walk[i]["note"].replace('-', 'b')
+        walk[i]["note"] = walk[i]["note"].replace('-', 'b')
         i += 1
     return walk
 

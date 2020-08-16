@@ -26,79 +26,12 @@ p.setting {
 <body>
 
 
-<!--To display current json string, add {{data}} in the div  -->
-<!-- currently used network. This is just here for debugging purposes-->
+<h2> Upload New Piece. Only the top system of the piece will be 
+considered for the Basic and Grouped graphs. In the Roman Numeral and 
+Grouped Roman Numeral Graphs, the highest note is considered the melody.
+<i>If your file is not being processed, please email kpet@iu.edu for 
+troubleshooting help </i> </h2>
 
-<div>
-	<h1> See Global params for testing </h1>
-	<h2>Graph Json Data is (hidden in final)</h2>
-		<div id="data_test" class="scroll_div">
-		{{data}}
-		</div>
-	<h2>Random Walk is (hidden in final)</h2>
-		<div id="walk_test" class="scroll_div">
-			{{walk}}
-		</div>
-	<h2>Key is (Part of form in final)</h2>
-		<div id="key_test">
-			{{key}}
-		</div>
-	<h2>Offset is </h2>
-		<div id="offset_test">
-			{{offsets}}
-		</div>
-	<h2>Grouping is </h2>
-		<div id="grouping_test">
-			{{grouping}}
-		</div>
-</div>	
-<br>	
-<br>
-<br>
-<h1> Start Real Application Section </h1>
-
-<h2> Data Features </h2>
-<div class="gen_info">
-	<form id="changeparams"  method = "post" 
-			enctype="multipart/form-data">
-  	  <fieldset> 
-            <label for="key">
-
-
-                Enter Key of piece being processed. (for pieces in a minor 
-                key, enter the relative major):
-            </label>
-            <input type="text" id="key" name="key">
-            (e.g. <i>A</i>  )          
-            <br>
-            <br>
-
-            <label for="grouping">
-                Enter New Measure Offsets for Forced Grouping graph 
-                as measure numbers separated by spaces:
-            </label>
-            <input type="text" id="grouping" name="grouping" >
-            ( e.g. <i>1 10 20 </i>) 
-            <br>
-            <br>
-            <label for="offsets">
-                Enter New New Note Offsets for Roman Numeral Forced 
-                Grouping Graph as note offsets separated by spaced:
-            </label>
-            <input type="text" id="offsets" name="offsets" >
-            (e.g. <i>1  35 50 90</i>)
-           <br>
-          
-      </fieldset>
-
-      <fieldset>
- 	    	 <button id = "update-params-btn" type="button">Submit</button>
-      </fieldset>
-	</form>
-</div>
-
-
-<h2> Upload New Piece </h2>
 <h3> Accepts files with the extension
     <i>.xml</i>, <i>.mxl</i>, <i>.mid</i> and <i>.musicxml</i>
 </h3>
@@ -121,6 +54,7 @@ https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-
 </div>
 <br>
 <br>
+
 <h2>
 Click the below button to change to a different encoding scheme
 </h2>
@@ -204,6 +138,49 @@ Generate Composition from a random walk of this graph. To create the random walk
       </fieldset>
     </form>
 </div>
+<!--To display current json string, add {{data}} in the div  -->
+<!-- currently used network. This is just here for debugging purposes-->
+<h2> Data Features </h2>
+<div class="gen_info">
+	<form id="changeparams"  method = "post" 
+			enctype="multipart/form-data">
+  	  <fieldset> 
+            <label for="key">
+
+
+                Enter Key of piece being processed. (for pieces in a minor 
+                key, enter the relative major):
+            </label>
+            <input type="text" id="key" name="key">
+            (e.g. <i>A</i>  )          
+            <br>
+            <br>
+
+            <label for="grouping">
+                Enter New Measure Offsets for Forced Grouping graph 
+                as measure numbers separated by spaces:
+            </label>
+            <input type="text" id="grouping" name="grouping" >
+            ( e.g. <i>1 10 20 </i>) 
+            <br>
+            <br>
+            <label for="offsets">
+                Enter New New Note Offsets for Roman Numeral Forced 
+                Grouping Graph as note offsets separated by spaced:
+            </label>
+            <input type="text" id="offsets" name="offsets" >
+            (e.g. <i>1  35 50 90</i>)
+           <br>
+          
+      </fieldset>
+
+      <fieldset>
+ 	    	 <button id = "update-params-btn" type="button">Submit</button>
+      </fieldset>
+	</form>
+</div>
+
+
 <h2> Data and Random Walk Explorer </h2>
 <div id="data"></div>
 <div id="random_walk"></div>
