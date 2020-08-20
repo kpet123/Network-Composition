@@ -26,6 +26,7 @@ p.setting {
 <body>
 
 
+
 <h2> Upload New Piece. Only the top system of the piece will be 
 considered for the Basic and Grouped graphs. In the Roman Numeral and 
 Grouped Roman Numeral Graphs, the highest note is considered the melody.
@@ -38,10 +39,10 @@ troubleshooting help </i> </h2>
 
 <div class="gen_info">
 
-<!-- Code adapted from 
-https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-call-in-flask
+<!-- Code adapted from https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-call-in-flask  --!>
+
  
---!>
+
     <form id="upload-file" method="post" enctype="multipart/form-data">
         <fieldset>
             <label for="file">Select a file</label>
@@ -52,42 +53,15 @@ https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-
         </fieldset>
     </form>
 </div>
-<br>
-<br>
 
-<h2>
-Click the below button to change to a different encoding scheme
-</h2>
-
-<div class="gen_info">
-    <fieldset>
-        <button id="grouped">
-            Display Forced Grouping Graph Encoding
-        </button>		
-        <button id="basic">
-            Display Basic Graph Encoding
-        </button>
-        <button id="RN">
-            Diplay Roman Numeral Graph Encoding 
-        </button>
-        <button id="grouped_RN">
-            Display Grouped Roman Numeral Graph Encoding
-        </button>
-    </fieldset>
-</div>
-
-<h2>
-Click the below button to change visualized communities
-</h2>
-
-<div class="gen_info">
-    <fieldset>
-	    <button id="infomap_vis">Change to Infomap</button>		
-        <button id="lpm_vis">Change to Label Propagation</button>
-        <button id="louvain_vis">Change to Louvain</button>
-        <button id="hlc_vis">Change to Hierarchical Links</button>
-    </fieldset>
-</div>
+<h3> This Graph is build from a score where pitches and/or harmonies are 
+     mapped to nodes and pitch/harmony transitions are mapped to links.
+     Click "Start Walk" below to hear how the score's original melody 
+     moves through the graph. Change how notes map to nodes by changing
+     graph encoding below, or show different community partitions by
+     changing community algorithmn below. You can also generate different
+     "random walks" on this graph as a form of algorithmic composition. 
+</h3>
 <!-- Embedded Observable --!>
 <h2> Press to Start Walk </h2>
 <p class="setting">
@@ -104,43 +78,13 @@ Click the below button to change visualized communities
 <h2> Audio Playback Parameters </h2>
 <div id="speed"></div>
 <div id="wavetype"></div>
-<h2> Change Edge Weight</h2>
-<div class="gen_info">
-    Chosen Edge : 
-    <div>
-        <p id="chosen_source"></p> TO  <p id="chosen_target"></p>
-    </div>
-    with weight <p id="cur_weight"></p>
-    <form>
 
-            <input type="text" id="new_weight" name="new_weight" >
-            ( e.g. <i>6</i>)
-        <button id = "change-weight-btn" type="button">Submit</button>
-    </form>
-</div>
-<div>
-
-<h2>
-Generate Composition from a random walk of this graph. To create the random walk, choose an option below and click "Submit"
-</h2>
-<div class = "gen_info">
-    <form >
-      <fieldset>
-      <label for="walk-encoding-options">
-            Choose Rhythm of Generated Composition:
-      </label>
-      <select id="walk-encoding-options" name="walk-encoding-options">
-        <option value="ignore-comm">Ignore Communities</option>
-        <option value="consider-comm">Consider Communities</option>
-
-      </select>
-      <button id = "change-walk-btn" type="button">Submit</button>
-      </fieldset>
-    </form>
-</div>
-<!--To display current json string, add {{data}} in the div  -->
-<!-- currently used network. This is just here for debugging purposes-->
-<h2> Data Features </h2>
+<h2> Step 2: Enter Information about the piece you uploaded (you can ignore
+     this if using the default data.) The key of the piece is used for 
+     Roman Numeral Harmonic Analysis - right now we don't support key 
+     changes so just pick one :). To create separate subgraphs for different
+     sections of the piece, end the measure and note offset of the position 
+     you want that break to be.   </h2>
 <div class="gen_info">
 	<form id="changeparams"  method = "post" 
 			enctype="multipart/form-data">
@@ -180,6 +124,79 @@ Generate Composition from a random walk of this graph. To create the random walk
 	</form>
 </div>
 
+
+<br>
+<br>
+
+<h2>
+Click the below button to change to a different encoding scheme
+</h2>
+
+<div class="gen_info">
+    <fieldset>
+        <button id="grouped">
+            Display Forced Grouping Graph Encoding
+        </button>		
+        <button id="basic">
+            Display Basic Graph Encoding
+        </button>
+        <button id="RN">
+            Diplay Roman Numeral Graph Encoding 
+        </button>
+        <button id="grouped_RN">
+            Display Grouped Roman Numeral Graph Encoding
+        </button>
+    </fieldset>
+</div>
+
+<h2>
+Click the below button to change visualized communities
+</h2>
+
+<div class="gen_info">
+    <fieldset>
+	    <button id="infomap_vis">Change to Infomap</button>		
+        <button id="lpm_vis">Change to Label Propagation</button>
+        <button id="louvain_vis">Change to Louvain</button>
+        <button id="hlc_vis">Change to Hierarchical Links</button>
+    </fieldset>
+</div>
+
+
+<h2>
+Generate Composition from a random walk of this graph. To create the random walk, choose an option below and click "Submit"
+</h2>
+<div class = "gen_info">
+    <form >
+      <fieldset>
+      <label for="walk-encoding-options">
+            Choose Rhythm of Generated Composition:
+      </label>
+      <select id="walk-encoding-options" name="walk-encoding-options">
+        <option value="ignore-comm">Ignore Communities</option>
+        <option value="consider-comm">Consider Communities</option>
+
+      </select>
+      <button id = "change-walk-btn" type="button">Submit</button>
+      </fieldset>
+    </form>
+</div>
+
+<h2> Change Edge Weight</h2>
+<div class="gen_info">
+    Chosen Edge : 
+    <div>
+        <p id="chosen_source"></p> TO  <p id="chosen_target"></p>
+    </div>
+    with weight <p id="cur_weight"></p>
+    <form>
+
+            <input type="text" id="new_weight" name="new_weight" >
+            ( e.g. <i>6</i>)
+        <button id = "change-weight-btn" type="button">Submit</button>
+    </form>
+</div>
+<div>
 
 <h2> Data and Random Walk Explorer </h2>
 <div id="data"></div>
