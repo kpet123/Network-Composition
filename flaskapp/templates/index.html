@@ -44,6 +44,19 @@
     p.setting {
        background-color: lightgreen;
     }
+    div.highlight_inline{
+       background-color: lightgreen;
+    }
+    button.submit{
+
+
+       padding: 15px 32px;
+       text-align: center;
+       font-size: 25px;
+       margin: 4px 2px;
+       cursor: pointer;
+
+    }
 </style>
 
 <!-- Body --!>
@@ -64,138 +77,37 @@
     <div class = "col-sm-12">
     <div class="menu">
       <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#home">
-                Home</a></li>
+        <li class="active"><a data-toggle="tab" href="#home">Home</a></li>
         <li><a data-toggle="tab" href="#menu0">Upload New Piece</a></li>
-
         <li><a data-toggle="tab" href="#menu1">Change Graph Structure</a></li>
         <li><a data-toggle="tab" href="#menu2">Change Community Assignment</a></li>
         <li><a data-toggle="tab" href="#menu3">Change Edge Weights</a></li>
-      </ul>
+    </ul>
 
       <div class="tab-content">
+
         <!-- Home --!>
-
         <div id="home" class="tab-pane fade in active">
+            <div class="row" id="homepage"></div>     
+        </div>
 
-            <h4> 
-                This Graph is build from a score 
-                where pitches and/or harmonies are 
-                mapped to nodes and pitch/harmony 
-                transitions are mapped to links.
-                Click "Start Walk" below to hear how 
-                the score's original melody moves through 
-                the graph. Change how notes map to nodes 
-                by changing graph encoding below, or show 
-                different community partitions by
-                changing community algorithmn below. You can 
-                also generate different "random walks" on 
-                this graph as a form of algorithmic composition. 
-            </h4>
-        </div>     
+        <div id="blank" class="tab-pane fade in active"></div>
+
         <!-- Upload New File--!>
+        <div id="menu0" class="tab-pane fade">
 
-        <div id="menu0" class="tab-pane fade in active">
-      
-             
-              <h3> Step 1: Upload New Piece </h3>
-              <div class="row">
-                <div class="col-sm-8">
+            <div class="row" id="upload-header-1"></div>
 
-                  <h4> Note: Only the top system of the piece will be 
-                    considered for the Basic and Grouped graphs. 
-                    In the Roman Numeral and 
-                    Grouped Roman Numeral Graphs, the highest note 
-                    is considered the melody.
-                    <i>If your file is not being processed, please email 
-                    kpet@iu.edu for 
-                    troubleshooting help </i> 
-                   </h4>
-               
-                </div>
-                <div class="col-sm-4">
-                    <!--Code adapted from https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-call-in-flask  
---!>
-             
-
-                <form id="upload-file" method="post" enctype="multipart/form-data">
-                 
-                        <label for="file">Select a file.
-                        Accepts files with the extension
-                        <i>.xml</i>, <i>.mxl</i>, <i>.mid</i> 
-                        and <i>.musicxml</i>
-                        </label>
-                        <input name="file" type="file">
-                 
-                        <button id="upload-file-btn" type="button">Upload</button>
-               
-                </form>
-         
-
-              </div>
+            <div class="row">              
+                <div class="col-sm-4" id="upload-form-div"></div>
             </div>
-            <div class="row">
-               <div class="col-sm-12">             
-                 <h3> 
-                 Step 2: Enter Information about 
-                 the piece you uploaded 
-                 </h3>
-                 <h4> 
-                 The key of the piece is used for 
-                 Roman Numeral Harmonic Analysis - 
-                 right now we don't support key 
-                 changes so just pick one :). 
-                 To create separate subgraphs for different
-                 sections of the piece, end the measure 
-                 and note offset of the position 
-                 you want that break to be.   
-                 </h4>
-              </div>
-            </div>
-            <div class="row">
 
-              <form id="changeparams"  method = "post" 
-                        enctype="multipart/form-data">
- 
-              <div class="col-sm-4">
-               
-                    <label for="key">
-                    Enter Key of piece being processed. 
-                    (for pieces in a minor 
-                    key, enter the relative major):
-                    </label>
-                    <input type="text" id="key" name="key">
-                    (e.g. <i>A</i>  )          
-              </div>
-              <div class="col-sm-4">
-                   <label for="grouping">
-                    Enter New Measure Offsets for Forced Grouping graph 
-                    as measure numbers separated by spaces:
-                    </label>
-                    <input type="text" id="grouping" name="grouping" >
-                    ( e.g. <i>1 10 20 </i>) 
-              </div>
-              <div class="col-sm-4"> 
-                    <label for="offsets">
-                        Enter New New Note Offsets for Roman Numeral Forced 
-                        Grouping Graph as note offsets separated by spaced:
-                    </label>
-                    <input type="text" id="offsets" name="offsets" >
-                    (e.g. <i>1  35 50 90</i>)
-                   <br>
-                  
-                    <button id = "update-params-btn" type="button">
-                    Submit
-                    </button>
-               </div>            
-              </form>
+            <div class="row" id="upload-header-2"></div>
 
-            
-          </div>  
+            <div class="row" id="change_param_div"></div>
 
         </div>    <!--close menu--!>
-       
-        <!-- Change Graph Structure --!>
+       <!-- Change Graph Structure --!>
         <div id="menu1" class="tab-pane fade">
 
             <h2>
@@ -229,6 +141,7 @@
 
             </div>
         </div>
+      
         
         <!-- Change Community Assignment --!>
 
@@ -260,39 +173,39 @@
         <!-- Change Edge Weights --!>
         <div id="menu3" class="tab-pane fade">
             <h2> Change Edge Weight</h2>
-            <p>
+            <h4>
                 You can change the weight (thickness) of edges 
                 by clicking on a link to select it (the selected 
                 link will turn red), typing in a new weight, then 
                 clicking "submit". The altered link will turn magenta.
-            </p>
+            </h4>
             
-            <p>
+            <h4>
                 Changing the weight of a node's outgoing edge alters
                 the probability the next note of a generated composition
                 will be the node on the other side of that link. 
                 A thinker link means higher chance of transitioning,
                 a thinner link means lower chance of transitioning. 
-            </p>
+            </h4>
 
             <div class="row">
               <div class="col-sm-2">
-                Chosen Edge : 
+                    Chosen Edge : 
               </div>
               <div class="col-sm-1">     
-                <p id="chosen_source"></p> 
+                <p id="chosen_source" class="setting"></p> 
               </div>
               <div class="col-sm-1">
                 TO  
               </div>
               <div class="col-sm-1">
-                <p id="chosen_target"></p>
+                <p id="chosen_target" class="setting"></p>
               </div>
               <div class="col-sm-2">       
                 with weight 
               </div>
               <div class="col-sm-1">
-                <p id="cur_weight"></p>
+                <p id="cur_weight" class="setting"></p>
               </div>
             </div>
             <div class="row">  
@@ -303,7 +216,8 @@
                     </label>    
                     <input type="text"  id="new_weight" name="new_weight" >
                     ( e.g. <i>6</i>)
-                    <button id = "change-weight-btn" type="button">Submit</button>
+                    <button id = "change-weight-btn" type="button" 
+                        class="submit">Submit</button>
                 </form>
             
 

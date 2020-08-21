@@ -177,6 +177,112 @@ var change_walk_encoding = function() {
     });
 };
 
+
+var load = function(){
+
+ $("#homepage").append(           
+            `<h4> 
+                This Graph is build from a score 
+                where pitches and/or harmonies are 
+                mapped to nodes and pitch/harmony 
+                transitions are mapped to links.
+                Click \" Start Walk\" below to hear how 
+                the score \' s original melody moves through 
+                the graph. Change how notes map to nodes 
+                by changing graph encoding below, or show 
+                different community partitions by
+                changing community algorithmn below. You can 
+                also generate different \" random walks\" on 
+                this graph as a form of algorithmic composition. 
+            </h4>`);
+  $("#upload-header-1").append(
+             `<h3> 
+                 Step 1: Upload New Piece 
+              </h3>
+
+              <h4> Note: Only the top system of the piece will be 
+                considered for the Basic and Grouped graphs. 
+                In the Roman Numeral and 
+                Grouped Roman Numeral Graphs, the highest note 
+                is considered the melody.
+                <i>If your file is not being processed, please email 
+                kpet@iu.edu for 
+                troubleshooting help </i> 
+               </h4>`
+
+        );
+
+     //Code adapted from https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-call-in-flask  
+ 
+  $("#upload-form-div").append(
+          
+       ` <form id="upload-file" method="post" enctype="multipart/form-data"> 
+          
+                <label for="file">Select a file. 
+                Accepts files with the extension 
+                <i>.xml</i>, <i>.mxl</i>, <i>.mid</i>  
+                and <i>.musicxml</i> 
+                </label> 
+                <input name="file" type="file"> 
+                <br>          
+                <button id="upload-file-btn" type="button">Upload</button> 
+        
+        </form>` 
+
+       );
+    $("#upload-header-2").append(
+`                 <h3>  
+                 Step 2: Enter Information about  
+                 the piece you uploaded  
+                 </h3> 
+                 <h4>  
+                 The key of the piece is used for  
+                 Roman Numeral Harmonic Analysis -  
+                 right now we don't support key  
+                 changes so just pick one :).  
+                 To create separate subgraphs for different 
+                 sections of the piece, end the measure  
+                 and note offset of the position  
+                 you want that break to be.    
+                 </h4>
+`
+
+);
+
+
+
+    $("#change_param_div").append(
+               ` <form id="changeparams"  method = "post" 
+                        enctype="multipart/form-data">
+             
+                    <label for="key">
+                    Enter Key of piece being processed. 
+                    (for pieces in a minor 
+                    key, enter the relative major):
+                    </label>
+                   <input type="text" id="key" name="key">
+                     (e.g. <i>A</i>  ) 
+
+                   <label for="grouping">
+                    Enter New Measure Offsets for Forced Grouping graph 
+                    as measure numbers separated by spaces:
+                   </label>
+                   <input type="text" id="grouping" name="grouping" >
+                       ( e.g. <i>1 10 20 </i>) 
+                   <label for="offsets">
+                        Enter New New Note Offsets for Roman Numeral Forced
+                        Grouping Graph as note offsets separated by spaced:
+                    </label>
+                   <input type="text" id="offsets" name="offsets" >
+                    (e.g. <i>1  35 50 90</i>)
+                   <br>
+                <button id = "update-params-btn" type="button" class="submit">
+                Submit
+                </button>
+
+         </form>`
+    );   
+}
 //in #(document).ready,  you can define responses to 
 //actions (e.g. button clicks) executed from 
 //the index.html file. To link an html action, use that action's id tag (e.g.
@@ -185,7 +291,8 @@ var change_walk_encoding = function() {
 //change_encoding(), which takes an integer to represent which encoding to switch
 //to . 
 $(document).ready(function(){
-	console.log("in custom_script document ready");
+    load();
+    console.log("in custom_script document ready");
 	console.log("data is ");
 	console.log(data);
     console.log("key is ");
