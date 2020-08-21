@@ -26,7 +26,18 @@
     }
 
     div.gen_info {
-    background-color: #78b3e0;
+    background-color: lightblue;
+    border: 15px solid green;
+    padding: 50px;
+   
+
+    }
+
+    div.menu {
+    background-color: lightyellow;
+    border: 15px solid green;
+    padding: 50px;
+   
 
     }
 
@@ -45,88 +56,53 @@
     <!--  <p>Resize this responsive page to see the effect!</p> --!> 
     </div>
  
- <!-- Main app  --!> 
-
- <!-- Embedded Observable --!>
-
-
-  <div class="container">
-   <div class="row">
-    <h3> 
-        This Graph is build from a score 
-        where pitches and/or harmonies are 
-        mapped to nodes and pitch/harmony 
-        transitions are mapped to links.
-        Click "Start Walk" below to hear how 
-        the score's original melody moves through 
-        the graph. Change how notes map to nodes 
-        by changing graph encoding below, or show 
-        different community partitions by
-        changing community algorithmn below. You can 
-        also generate different "random walks" on 
-        this graph as a form of algorithmic composition. 
-    </h3>
-    
-   </div>
-   <div class="row">
-    <div class="col-sm-1">
-       <div class="row">
-            <h4> Press to Start Walk </h4>
-            Setting: <p class="setting"> {{setting}}</p>
-            <div>
-                <span id="start_walk"></span>
-            </div>
-                     
-       </div>
-       <div class="row">
-
-            <h4> Visualization Parameters </h4>
-            <br>
-            <div id="radius"></div>
-            <br>
-            <div id="attraction"></div>
-            <br>
-            <div id="distance"></div>
-            <br>
-            <h4> Audio Parameters </h4>
-            <br>
-            <div id="speed"></div>
-            <br>
-            <div id="wavetype"></div>
-                  
-       </div>
-    </div>
-    <div class="col-sm-11">
-
-       <div id="chart"></div>
-
-    </div>
-
-   </div>
-
- </div>
-<!-- menu test --!>
+ 
+<!-- Menu --!>
 
     <div class="container">
-
+    <div class="row">
+    <div class = "col-sm-12">
+    <div class="menu">
       <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#menu0">
-                Upload New Piece</a></li>
+        <li class="active"><a data-toggle="tab" href="#home">
+                Home</a></li>
+        <li><a data-toggle="tab" href="#menu0">Upload New Piece</a></li>
+
         <li><a data-toggle="tab" href="#menu1">Change Graph Structure</a></li>
         <li><a data-toggle="tab" href="#menu2">Change Community Assignment</a></li>
         <li><a data-toggle="tab" href="#menu3">Change Edge Weights</a></li>
       </ul>
 
       <div class="tab-content">
-      
+        <!-- Home --!>
+
+        <div id="home" class="tab-pane fade in active">
+
+            <h4> 
+                This Graph is build from a score 
+                where pitches and/or harmonies are 
+                mapped to nodes and pitch/harmony 
+                transitions are mapped to links.
+                Click "Start Walk" below to hear how 
+                the score's original melody moves through 
+                the graph. Change how notes map to nodes 
+                by changing graph encoding below, or show 
+                different community partitions by
+                changing community algorithmn below. You can 
+                also generate different "random walks" on 
+                this graph as a form of algorithmic composition. 
+            </h4>
+        </div>     
         <!-- Upload New File--!>
 
         <div id="menu0" class="tab-pane fade in active">
-                <h2> Upload New Piece        </h2>
+      
+             
+              <h3> Step 1: Upload New Piece </h3>
               <div class="row">
                 <div class="col-sm-8">
 
-                  <h3> Note: Only the top system of the piece will be 
+                  <h4> Note: Only the top system of the piece will be 
                     considered for the Basic and Grouped graphs. 
                     In the Roman Numeral and 
                     Grouped Roman Numeral Graphs, the highest note 
@@ -134,12 +110,12 @@
                     <i>If your file is not being processed, please email 
                     kpet@iu.edu for 
                     troubleshooting help </i> 
-                   </h3>
+                   </h4>
                
                 </div>
                 <div class="col-sm-4">
-                    Code adapted from https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-call-in-flask  
-
+                    <!--Code adapted from https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-call-in-flask  
+--!>
              
 
                 <form id="upload-file" method="post" enctype="multipart/form-data">
@@ -159,11 +135,12 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-sm-6">
-                 <h2> 
+               <div class="col-sm-12">             
+                 <h3> 
                  Step 2: Enter Information about 
-                 the piece you uploaded (you can ignore
-                 this if using the default data.) 
+                 the piece you uploaded 
+                 </h3>
+                 <h4> 
                  The key of the piece is used for 
                  Roman Numeral Harmonic Analysis - 
                  right now we don't support key 
@@ -172,13 +149,15 @@
                  sections of the piece, end the measure 
                  and note offset of the position 
                  you want that break to be.   
-                 </h2>
-               </div>
-               <div class="col-sm-6">
+                 </h4>
+              </div>
+            </div>
+            <div class="row">
 
-         
-                 <form id="changeparams"  method = "post" 
+              <form id="changeparams"  method = "post" 
                         enctype="multipart/form-data">
+ 
+              <div class="col-sm-4">
                
                     <label for="key">
                     Enter Key of piece being processed. 
@@ -187,16 +166,16 @@
                     </label>
                     <input type="text" id="key" name="key">
                     (e.g. <i>A</i>  )          
-                    <br>
-                    <br>
-                    <label for="grouping">
+              </div>
+              <div class="col-sm-4">
+                   <label for="grouping">
                     Enter New Measure Offsets for Forced Grouping graph 
                     as measure numbers separated by spaces:
                     </label>
                     <input type="text" id="grouping" name="grouping" >
                     ( e.g. <i>1 10 20 </i>) 
-                    <br>
-                    <br>
+              </div>
+              <div class="col-sm-4"> 
                     <label for="offsets">
                         Enter New New Note Offsets for Roman Numeral Forced 
                         Grouping Graph as note offsets separated by spaced:
@@ -208,10 +187,10 @@
                     <button id = "update-params-btn" type="button">
                     Submit
                     </button>
-            
+               </div>            
               </form>
 
-           </div> 
+            
           </div>  
 
         </div>    <!--close menu--!>
@@ -332,8 +311,53 @@
 
         </div> <!-- close menu --!>
      </div>     <!-- close tab content --!>
+ </div>
+ </div>
+ </div>
  </div> <!-- close container --!>
 
+
+ <!-- Embedded Observable --!>
+
+
+  <div class="container">
+   <div class="row">
+    <div class="col-sm-1">
+       <div class="row">
+            <h4> Press to Start Walk </h4>
+            Setting: <p class="setting"> {{setting}}</p>
+            <div>
+                <span id="start_walk"></span>
+            </div>
+                     
+       </div>
+       <div class="row">
+
+            <h4> Visualization Parameters </h4>
+            <br>
+            <div id="radius"></div>
+            <br>
+            <div id="attraction"></div>
+            <br>
+            <div id="distance"></div>
+            <br>
+            <h4> Audio Parameters </h4>
+            <br>
+            <div id="speed"></div>
+            <br>
+            <div id="wavetype"></div>
+                  
+       </div>
+    </div>
+    <div class="col-sm-11">
+
+       <div id="chart"></div>
+
+    </div>
+
+   </div>
+
+ </div>
 <br>
 <br>
 
