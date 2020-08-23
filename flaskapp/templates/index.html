@@ -6,59 +6,91 @@
     <title> Network Music Generator </title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="mystyle.css">  
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    
+
     <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 	<script src="/static/interaction.js"></script>
     <script src="/static/observable.js" type="module"></script>
 </head>
-
-<!--CSS Style descriptors --!>
 <style>
-    div.scroll_div {
-      background-color: lightblue;
-      width: 600px;
-      height: 110px;
-      overflow: scroll;
+div.scroll_div {
+  background-color: lightblue;
+  width: 600px;
+  height: 110px;
+  overflow: scroll;
 
 
     }
 
-    div.gen_info {
+div.gen_info {
     background-color: lightblue;
     border: 15px solid green;
     padding: 50px;
-   
-
     }
 
-    div.menu {
+div.menu {
     background-color: lightyellow;
-    border: 15px solid green;
+    border: 15px solid lightgreen;
     padding: 50px;
-   
+}
+div.side-menu{
+    background-color: lightyellow;
+    border: 15px solid lightblue;
+    padding: 20px;
+}
+
+div.chart-div{
+    border: 5px solid lightgray;
+    }
+    
+p.setting {
+   background-color: lightyellow;
+   font-weight: bold;
+   font-size: 22px;
+    }
+div.highlight_inline{
+   background-color: lightgreen;
+    }
+button.submit{
+
+
+   padding: 15px 32px;
+   text-align: center;
+   font-size: 25px;
+   margin: 4px 2px;
+   cursor: pointer;
+   font-weight: bold;
 
     }
 
-    p.setting {
-       background-color: lightgreen;
-    }
-    div.highlight_inline{
-       background-color: lightgreen;
-    }
-    button.submit{
+button.option{
 
-
-       padding: 15px 32px;
-       text-align: center;
-       font-size: 25px;
-       margin: 4px 2px;
-       cursor: pointer;
+   padding: 15px 32px;
+   text-align: center;
+   font-size: 15px;
+   margin: 4px 2px;
+   cursor: pointer;
+   background-color: lightgreen;
+   font-weight: bold;
 
     }
+button.start-walk{
+
+   padding: 15px 32px;
+   text-align: center;
+   font-size: 22px;
+   margin: 4px 2px;
+   cursor: pointer;
+   background-color: blue;
+   font-weight: bold;
+   color: white;
+
+
+    }
+
 </style>
-
 <!-- Body --!>
 <body>
 
@@ -82,6 +114,7 @@
         <li><a data-toggle="tab" href="#menu1">Change Graph Structure</a></li>
         <li><a data-toggle="tab" href="#menu2">Change Community Assignment</a></li>
         <li><a data-toggle="tab" href="#menu3">Change Edge Weights</a></li>
+        <li><a data-toggle="tab" href="#menu4">Compose Melody</a></li>
     </ul>
 
       <div class="tab-content">
@@ -90,8 +123,6 @@
         <div id="home" class="tab-pane fade in active">
             <div class="row" id="homepage"></div>     
         </div>
-
-        <div id="blank" class="tab-pane fade in active"></div>
 
         <!-- Upload New File--!>
         <div id="menu0" class="tab-pane fade">
@@ -106,124 +137,55 @@
 
             <div class="row" id="change_param_div"></div>
 
-        </div>    <!--close menu--!>
+        </div>  
+ 
        <!-- Change Graph Structure --!>
         <div id="menu1" class="tab-pane fade">
 
-            <h2>
-            Click the below button to change to a different encoding scheme
-            </h2>
-            <div class="row">  
+            <div class="row" id="change-structure-div"></div>
 
-              <div class="col-sm-3">
-                <button id="basic">
-                    Display Basic Graph Encoding
-                </button>
-              </div>
-
-              <div class="col-sm-3">        
-                <button id="grouped">
-                    Display Forced Grouping Graph Encoding
-                </button>		
-              </div>
-
-              <div class="col-sm-3">
-                <button id="RN">
-                    Diplay Roman Numeral Graph Encoding 
-                </button>
-              </div>
-
-              <div class="col-sm-3">
-                <button id="grouped_RN">
-                    Display Grouped Roman Numeral Graph Encoding
-                </button>
-              </div>          
-
-            </div>
         </div>
       
         
         <!-- Change Community Assignment --!>
 
         <div id="menu2" class="tab-pane fade">
-
-            <h2>
-            Click the below button to change visualized communities
-            </h2>
-            <div class="row">
-              <div class="col-sm-3">
-                    <button id="infomap_vis">Change to Infomap</button>		
-              </div>
-
-              <div class="col-sm-3">
-                    <button id="lpm_vis">Change to Label Propagation</button>
-              </div>
-
-              <div class="col-sm-3">
-                    <button id="louvain_vis">Change to Louvain</button>
-              </div>
-
-              <div class="col-sm-3">
-                    <button id="hlc_vis">Change to Hierarchical Links</button>
-              </div>  
-            </div>
-
+            <div class="row" id="change-community-div"></div>
         </div>
 
         <!-- Change Edge Weights --!>
         <div id="menu3" class="tab-pane fade">
-            <h2> Change Edge Weight</h2>
-            <h4>
-                You can change the weight (thickness) of edges 
-                by clicking on a link to select it (the selected 
-                link will turn red), typing in a new weight, then 
-                clicking "submit". The altered link will turn magenta.
-            </h4>
-            
-            <h4>
-                Changing the weight of a node's outgoing edge alters
-                the probability the next note of a generated composition
-                will be the node on the other side of that link. 
-                A thinker link means higher chance of transitioning,
-                a thinner link means lower chance of transitioning. 
-            </h4>
+              <div class="row" id="change-edge-div"></div>
+                   <div class="row">
+                      <div class="col-sm-2">
+                            Chosen Edge :
+                      </div>
+                      <div class="col-sm-1">
+                        <p id="chosen_source" class="setting"></p>
+                      </div>
+                      <div class="col-sm-1">
+                        TO 
+                      </div>
+                      <div class="col-sm-1">
+                        <p id="chosen_target" class="setting"></p>
+                      </div>
+                      <div class="col-sm-2">
+                        with weight
+                      </div>
+                      <div class="col-sm-1">
+                        <p id="cur_weight" class="setting"></p>
+                      </div>
+                   </div>
+                    
+                   <div class="row" id="changed-edge-div-2"></div>
+               
 
-            <div class="row">
-              <div class="col-sm-2">
-                    Chosen Edge : 
-              </div>
-              <div class="col-sm-1">     
-                <p id="chosen_source" class="setting"></p> 
-              </div>
-              <div class="col-sm-1">
-                TO  
-              </div>
-              <div class="col-sm-1">
-                <p id="chosen_target" class="setting"></p>
-              </div>
-              <div class="col-sm-2">       
-                with weight 
-              </div>
-              <div class="col-sm-1">
-                <p id="cur_weight" class="setting"></p>
-              </div>
-            </div>
-            <div class="row">  
-                
-                <form>
-                    <label for="new_weight">
-                       New Weight for Selected Edge    
-                    </label>    
-                    <input type="text"  id="new_weight" name="new_weight" >
-                    ( e.g. <i>6</i>)
-                    <button id = "change-weight-btn" type="button" 
-                        class="submit">Submit</button>
-                </form>
-            
-
-            </div>
-
-        </div> <!-- close menu --!>
+        </div> 
+        
+        <!-- Generate Composition --!>
+        <div id="menu4" class="tab-pane fade">
+            <div class="row" id="generate-composition-div"></div>
+        </div>
      </div>     <!-- close tab content --!>
  </div>
  </div>
@@ -234,66 +196,57 @@
  <!-- Embedded Observable --!>
 
 
-  <div class="container">
-   <div class="row">
-    <div class="col-sm-1">
-       <div class="row">
-            <h4> Press to Start Walk </h4>
-            Setting: <p class="setting"> {{setting}}</p>
-            <div>
-                <span id="start_walk"></span>
+ <div class="container">
+    <div class="row">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-2">
+           <br>
+           <p class="setting"> <i>Setting:</i> {{setting}}</p>
+        </div>
+        <div class="col-sm-2">
+           <span id="start_walk"></span>
+           
+        </div>
+        <div class="col-sm-4"></div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+            <div class="row">
+                <div class="side-menu">
+
+                    <h3> Visualization Parameters </h3>
+                    <br>
+                    <div id="radius"></div>
+                    <br>
+                    <div id="attraction"></div>
+                    <br>
+                    <div id="distance"></div>
+                    <br>
+                </div>
+                <div class="side-menu">
+
+
+                    <h3> Audio Parameters </h3>
+                    <br>
+                    <div id="speed"></div>
+                    <br>
+                    <div id="wavetype"></div>
+                </div>     
+            </div>             
+        </div>
+    
+        <div class="col-sm-10">
+           
+            <div class="chart-div">
+                <div id="chart"></div>
             </div>
-                     
-       </div>
-       <div class="row">
-
-            <h4> Visualization Parameters </h4>
-            <br>
-            <div id="radius"></div>
-            <br>
-            <div id="attraction"></div>
-            <br>
-            <div id="distance"></div>
-            <br>
-            <h4> Audio Parameters </h4>
-            <br>
-            <div id="speed"></div>
-            <br>
-            <div id="wavetype"></div>
-                  
-       </div>
+            
+        </div>
     </div>
-    <div class="col-sm-11">
-
-       <div id="chart"></div>
-
-    </div>
-
-   </div>
-
  </div>
+
 <br>
 <br>
-
-
-<h2>
-Generate Composition from a random walk of this graph. To create the random walk, choose an option below and click "Submit"
-</h2>
-<div class = "gen_info">
-    <form >
-      <fieldset>
-      <label for="walk-encoding-options">
-            Choose Rhythm of Generated Composition:
-      </label>
-      <select id="walk-encoding-options" name="walk-encoding-options">
-        <option value="ignore-comm">Ignore Communities</option>
-        <option value="consider-comm">Consider Communities</option>
-
-      </select>
-      <button id = "change-walk-btn" type="button">Submit</button>
-      </fieldset>
-    </form>
-</div>
 
 <div>
 

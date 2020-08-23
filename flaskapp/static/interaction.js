@@ -177,10 +177,13 @@ var change_walk_encoding = function() {
     });
 };
 
-
+/*
+All long text descriptions are moved here. They are referenced 
+in the index.html file by id
+*/
 var load = function(){
-
- $("#homepage").append(           
+    /*Homepage*/
+    $("#homepage").append(           
             `<h4> 
                 This Graph is build from a score 
                 where pitches and/or harmonies are 
@@ -194,8 +197,10 @@ var load = function(){
                 changing community algorithmn below. You can 
                 also generate different \" random walks\" on 
                 this graph as a form of algorithmic composition. 
-            </h4>`);
-  $("#upload-header-1").append(
+            </h4>
+        `);
+    /*Upload*/
+    $("#upload-header-1").append(
              `<h3> 
                  Step 1: Upload New Piece 
               </h3>
@@ -212,9 +217,9 @@ var load = function(){
 
         );
 
-     //Code adapted from https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-call-in-flask  
+    //Code adapted from https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-call-in-flask  
  
-  $("#upload-form-div").append(
+    $("#upload-form-div").append(
           
        ` <form id="upload-file" method="post" enctype="multipart/form-data"> 
           
@@ -231,7 +236,9 @@ var load = function(){
 
        );
     $("#upload-header-2").append(
-`                 <h3>  
+        
+        ` 
+                <h3>  
                  Step 2: Enter Information about  
                  the piece you uploaded  
                  </h3> 
@@ -245,9 +252,9 @@ var load = function(){
                  and note offset of the position  
                  you want that break to be.    
                  </h4>
-`
+        `
 
-);
+        );
 
 
 
@@ -280,16 +287,163 @@ var load = function(){
                 Submit
                 </button>
 
-         </form>`
-    );   
+         </form>
+        `
+        );   
+
+    /*Change Encoding*/
+    $("#change-structure-div").append(
+
+        `           
+            <h3>
+            Click the below button to change to a different encoding scheme
+            </h3>
+            <h4>
+            Explain how graph encoding scheme works, crib from paper. 
+            Allow for custom scheme to be inputted? 
+            </h4>
+
+
+              <div class="col-sm-3">
+                <button id="basic" class="option">
+                Basic Encoding
+                </button>
+              </div>
+
+              <div class="col-sm-3">        
+                <button id="grouped" class="option">
+                Forced Grouping Encoding
+                </button>      
+              </div>
+
+              <div class="col-sm-3">
+                <button id="RN" class="option">
+                Roman Numeral Encoding
+                </button>
+              </div>
+
+              <div class="col-sm-3">
+                <button id="grouped_RN" class="option">
+                Grouped Roman Numeral Encoding
+                </button>
+              </div>          
+        `
+        );
+/*Change Community*/
+    $("#change-community-div").append(
+
+        `   
+            <h2>
+            Click the below button to change visualized communities
+            </h2>
+
+            <h4>
+            Explain about communities. crib from paper.
+            </h4>
+            <div class="row">
+              <div class="col-sm-3">
+                    <button id="infomap_vis" class="option">
+                    Change to Infomap
+                    </button>
+              </div>
+
+              <div class="col-sm-3">
+                    <button id="lpm_vis" class="option">
+                    Change to Label Propagation
+                    </button>
+              </div>
+
+              <div class="col-sm-3">
+                    <button id="louvain_vis" class="option">
+                    Change to Louvain
+                    </button>
+              </div>
+
+              <div class="col-sm-3">
+                    <button id="hlc_vis" class="option">
+                    Change to Hierarchical Links
+                    </button>
+              </div>
+        `
+        );
+
+/* Change Edges */
+    $("#change-edge-div").prepend(
+
+        `            
+            <h2> Change Edge Weight</h2>
+            <h4>
+                You can change the weight (thickness) of edges 
+                by clicking on a link to select it (the selected 
+                link will turn red), typing in a new weight, then 
+                clicking "submit". The altered link will turn magenta.
+            </h4>
+
+            <h4>
+                Changing the weight of a node's outgoing edge alters
+                the probability the next note of a generated composition
+                will be the node on the other side of that link. 
+                A thinker link means higher chance of transitioning,
+                a thinner link means lower chance of transitioning. 
+            </h4>
+        `
+        );
+
+    $("#changed-edge-div-2").append(`     
+                <form>
+                    <label for="new_weight">
+                       New Weight for Selected Edge
+                    </label>
+                    <input type="text"  id="new_weight" name="new_weight" >
+                    ( e.g. <i>6</i>)
+                    <button id = "change-weight-btn" type="button" 
+                        class="submit">Submit</button>
+                </form>
+         
+        `);
+
+/*Generate Composition */
+
+    $("#generate-composition-div").append(`
+
+<h2>
+Generate Composition from a random walk of this graph. To create the random walk, choose an option below and click "Submit"
+</h2>
+
+<form >
+  <fieldset>
+  <label for="walk-encoding-options">
+        Choose Rhythm of Generated Composition:
+  </label>
+  <select id="walk-encoding-options" name="walk-encoding-options">
+    <option value="ignore-comm">Ignore Communities</option>
+    <option value="consider-comm">Consider Communities</option>
+
+  </select>
+  <button id = "change-walk-btn" type="button">Submit</button>
+  </fieldset>
+</form>
+
+
+
+
+
+    `);
+
+
+
+
 }
-//in #(document).ready,  you can define responses to 
-//actions (e.g. button clicks) executed from 
-//the index.html file. To link an html action, use that action's id tag (e.g.
-//the id tag for the button to change groups is 'grouped'). The action of 
-//telling Flask to update the encoding scheme is detailed in the function 
-//change_encoding(), which takes an integer to represent which encoding to switch
-//to . 
+
+/*
+In #(document).ready,  you can define responses to 
+actions (e.g. button clicks) executed from 
+the index.html file. To link an html action, use that action's id tag (e.g.
+the id tag for the button to change groups is 'grouped'). The action of 
+telling Flask to update the encoding scheme is detailed in the function 
+change_encoding(), which takes an integer to represent 
+which encoding to switch to .
+*/ 
 $(document).ready(function(){
     load();
     console.log("in custom_script document ready");
