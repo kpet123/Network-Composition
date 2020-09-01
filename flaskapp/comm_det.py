@@ -44,6 +44,7 @@ def generate_dendrogram(partition_data):
             listy = listy[tier-1]['children']
         listy.append({"name" : name, "value":1})
 
+    # remove empty leaves
     ch = d['children']
     for group in ch:
         group['children'] = [x for x in group['children'] if x['children']]
