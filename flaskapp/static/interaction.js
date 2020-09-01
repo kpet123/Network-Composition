@@ -184,20 +184,26 @@ in the index.html file by id
 var load = function(){
     /*Homepage*/
     $("#homepage").append(           
-            `<h4> 
-                This Graph is build from a score 
-                where pitches and/or harmonies are 
-                mapped to nodes and pitch/harmony 
-                transitions are mapped to links.
-                Click \" Start Walk\" below to hear how 
-                the score \' s original melody moves through 
+            `<p> 
+                The structure you see below is built from 
+                a music score. Each circle, or "node", 
+                corresponds to a note, while each arrow, or 
+                "link", corresponds to a transition between 
+                two notes. The thickness of each note represents
+                its "transition probability" and represents the number
+                of times a note transition occurs in the inputted
+                score. 
+              <p>
+                </p>
+                 Click the " Start Walk" button below to hear how 
+                the score' s original melody moves through 
                 the graph. Change how notes map to nodes 
-                by changing graph encoding below, or show 
-                different community partitions by
-                changing community algorithmn below. You can 
+                by altering the <i>graph encoding </i> above, 
+                or show different ways to divide the graph into 
+                groups by changing community below. You can 
                 also generate different \" random walks\" on 
                 this graph as a form of algorithmic composition. 
-            </h4>
+            </p>
         `);
     /*Upload*/
     $("#upload-header-1").append(
@@ -205,15 +211,17 @@ var load = function(){
                  Step 1: Upload New Piece 
               </h3>
 
-              <h4> Note: Only the top system of the piece will be 
+              <p> Note: Only the top system of the piece will be 
                 considered for the Basic and Grouped graphs. 
                 In the Roman Numeral and 
                 Grouped Roman Numeral Graphs, the highest note 
                 is considered the melody.
+                See the <i>Change Graph Structure</i> tab for 
+                more information about different graph types. 
                 <i>If your file is not being processed, please email 
                 kpet@iu.edu for 
                 troubleshooting help </i> 
-               </h4>`
+               </p>`
 
         );
 
@@ -242,16 +250,29 @@ var load = function(){
                  Step 2: Enter Information about  
                  the piece you uploaded  
                  </h3> 
-                 <h4>  
-                 The key of the piece is used for  
+                 <p>
+                 Some extra information is needed to create
+                 graphs other than the <i>Basic</i> graph
+                 encoding. If you want to create a 
+                 <i>Roman Numeral</i> or <i>Grouped Roman
+                 Numeral</i> graph, please enter the
+                 relative major of the most prominent
+                 key of the piece. This is used for  
                  Roman Numeral Harmonic Analysis -  
                  right now we don't support key  
-                 changes so just pick one :).  
-                 To create separate subgraphs for different 
-                 sections of the piece, end the measure  
-                 and note offset of the position  
-                 you want that break to be.    
-                 </h4>
+                 changes so just pick one :). 
+
+                 </p>
+                <p>
+                 Currently, subgraph creation for the <i> Grouped
+                </i> graph and <i>Grouped Roman Numeral</i> graph
+                happens in two ways. The <i>Grouped</i> graph is 
+                delimited by measure number, while the <i>Grouped
+                Roman Numeral </i> is delimited by absolute note 
+                offset. TRY TO FIX THIS BEFORE PUBLISHING.
+                These delimiters allow separate "subgraphs" to 
+                be created. [explain this better]  
+                 </p>
         `
 
         );
@@ -298,10 +319,51 @@ var load = function(){
             <h3>
             Click the below button to change to a different encoding scheme
             </h3>
-            <h4>
-            Explain how graph encoding scheme works, crib from paper. 
-            Allow for custom scheme to be inputted? 
-            </h4>
+            <p>
+            There are several ways one can turn a score into
+            a graph:
+            </p>
+            <p>
+            1. <i>Basic Graph</i>: This graph encoding maps 
+            each distinct pitch as a separate node(circles
+            on the graph). In fancy terms, the total number of 
+            nodes is equal to the size of the set of distinct pitches 
+            in the original piece. GCBot then creates something 
+            called a "multi-edge directed" out of the score. Each 
+            note becomes a node in the graph and each 
+            note transition (sequence of two adjacent notes) turns
+            into converted to a directed edge, or arrow. If a note 
+            transition was repeated, another edge between the 
+            original two nodes is added, making the arrow appear thicker.
+            A "start" and "end" node are added to show where the piece
+            begins and ends.
+            </p>
+            <p>
+            2. <i>Forced Grouping Graph</i> To build this graph, 
+            you first divide the score into sections (specified
+            as the "grouping" and "offset" parameters
+            when you upload a new piece). Apart from making the graph 
+            look cool, grouping the graph allows the random walk
+            composition to have distinct sections with different
+            character. Click here for a more technical explanation
+           
+            </p>
+            <p>
+            3. <i>Roman Numeral Graph</i> Roman numeral analysis 
+            is a chord classification scheme based on how 
+            different harmonies function within a 
+            piece. By using Roman numeral analysis to classify 
+            nodes, node transitions will now reflect both a 
+            piece's harmonic and melodic transition patterns.
+            </p>
+            <p>               
+            4. <i>Roman Numeral Graph</i> This is a combination 
+            of the Roman Numeral Graph and Forced Grouping Graph 
+            described above. The advantage of this method is 
+            a rich node encoding scheme that takes into 
+            account local transition probability 
+            differences and harmonic structure. 
+            </p>
 
 
               <div class="col-sm-3">
