@@ -291,7 +291,7 @@ def shiftEncoding(name=None):
                 graph, pitchdict, cur_community, changed_edges))
 
 
-    #write file for testing
+    # write file for testing
     out_file = open("myfile.json", "w") 
     json.dump(data, out_file) 
     out_file.close() 
