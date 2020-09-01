@@ -54,8 +54,6 @@ def generate_dendrogram(partition_data):
     with open('dendrogram.json', 'w') as fp:
         fp.write(j)
 
-    return d
-
 def make_communities(g, method): 
     '''
     Function to run community detection
@@ -180,7 +178,7 @@ def helper_community_detection(graph, method):
             graph.nodes[note]['comm'] = [0] 
     
     # ~~~~~~~~~~~~~~~~~~~
-    d = generate_dendrogram(partition_data)
+    generate_dendrogram(partition_data)
 
     # ~~~~~~~~~~~~~~~~~~~
-    return graph, d
+    return graph

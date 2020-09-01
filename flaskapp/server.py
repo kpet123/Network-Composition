@@ -136,7 +136,7 @@ def make_randomwalk_json(graph, encoding_method):
 def make_visualizable_graph(graph, pitchdict, cur_community, changed_edges):
 
     #add communities
-    community_graph, dendro = cd.helper_community_detection(mnet.convert_to_weighted(\
+    community_graph = cd.helper_community_detection(mnet.convert_to_weighted(\
             graph, False), cur_community)
     #weighted_graph = mnet.convert_to_weighted(graph, False)
 
@@ -159,7 +159,7 @@ def make_visualizable_graph(graph, pitchdict, cur_community, changed_edges):
         print("edge label changed for json")
         community_graph.edges[edge[0], edge[1]]["changed_edge"]=1 
 
-    return community_graph, dendro
+    return community_graph 
 
 
 '''
@@ -205,11 +205,9 @@ walk = mnet.convert_flat_js(og_walk) #make_randomwalk_json(graph, mnet.group_str
 
 print(walk)
 #Convert graph to weighted graph with pitch names+ comm labels
-vis_graph, dendro = make_visualizable_graph(\
-            graph, pitchdict, cur_community, changed_edges)
 
-
-data = json_graph.node_link_data(vis_graph)
+data = json_graph.node_link_data(make_visualizable_graph(\
+            graph, pitchdict, cur_community, changed_edges) )
 
 
 #Setting of playback. Can either play original tune or random walk
@@ -240,10 +238,9 @@ def default(name=None):
     global setting
     global changed_edges
 
-    global dendro #still dictionary here
 
     return render_template('index.html', data=data, key=key,\
-         grouping=grouping, offsets=offsets, walk=walk, setting=setting, dendro=dendro)   
+         grouping=grouping, offsets=offsets, walk=walk, setting=setting)   
 
     
 #Regenerates the graph based on the currently used 

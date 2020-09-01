@@ -12,8 +12,6 @@ const renders = {
     "viewof start_walk": "#start_walk",
     "chart": "#chart",
     "data" : "#data",
-    "chart_dendro" : "#chart_dendro",
-    "data_dendro" : "#dendro",
     "random_walk": "#random_walk",
     "viewof radius": "#radius",
     "viewof attraction": "#attraction",
@@ -43,8 +41,6 @@ console.log(key)
 console.log(data)
 main.redefine("random_walk", walk);
 main.redefine("data", data);
-main.redefine("data_dendro", dendro);
-
 
 
 //Get values for edge with weight to be changed. src and dst
