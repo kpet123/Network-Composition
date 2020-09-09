@@ -175,7 +175,7 @@ TODO: implement encoding
 changed_edges={}
 
 #Name of currently used file
-filename = 'telemannfantasie1.xml'#DO NOT PASS
+filename = 'telemannfantasie1.mxl'#DO NOT PASS
 
 #Key of piece, used for Roman Numeral Analysis
 key = 'A'
@@ -203,7 +203,11 @@ graph, pitchdict, og_walk = make_graph_from_file(filename, cur_graph_encoding,\
 #Do not convert to weighted graph before generating random walk
 walk = mnet.convert_flat_js(og_walk) #make_randomwalk_json(graph, mnet.group_strto16thnote)
 
-print(walk)
+#Save OG walk to file
+out_file = open("og_walk.json", "w") 
+json.dump(walk, out_file) 
+out_file.close() 
+#print(walk)
 #Convert graph to weighted graph with pitch names+ comm labels
 vis_graph, dendro = make_visualizable_graph(\
             graph, pitchdict, cur_community, changed_edges)
@@ -295,9 +299,7 @@ def shiftEncoding(name=None):
 
 
     # write file for testing
-    out_file = open("myfile.json", "w") 
-    json.dump(data, out_file) 
-    out_file.close() 
+
 
     #Set walk to original tune
     walk = mnet.convert_flat_js(og_walk) #make_randomwalk_json(graph, cur_walk_encoding)
