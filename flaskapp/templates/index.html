@@ -253,6 +253,8 @@ button.start-walk{
 <h2> Data and Random Walk Explorer </h2>
 <div id="data"></div>
 <div id="random_walk"></div>
+<div id="data_dendro"></div>
+<div id="chart_dendro"></div>
 
 
 <script>
@@ -265,7 +267,10 @@ button.start-walk{
 	var key = {{key|tojson}}
 	var grouping = {{grouping|tojson}}
 	var offsets = {{offsets|tojson}}
-    var setting = {{setting|tojson}}
+  var setting = {{setting|tojson}}
+  var dendro = {{dendro|tojson}}
+
+
 	//any information coming in needs to be converted to json 
 	//(to my knowlege) 
     console.log("In definiing area")
