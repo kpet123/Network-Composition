@@ -44,7 +44,9 @@ div.side-menu{
 div.chart-div{
     border: 5px solid lightgray;
     }
-    
+ div.hidden {
+  display: none;
+}   
 p.setting {
    background-color: lightyellow;
    font-weight: bold;
@@ -243,6 +245,17 @@ button.start-walk{
             
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm-10">
+                <div id="chart_dendro"></div>
+        </div>
+        <div class="col-sm-2">
+            <div class='side-menu'>
+            Put dendrogram description here. How to use, what to potentially highlight, etc. I'm a bit iffy about 
+            this placement though. 
+            </div>
+        </div>
+    </div>
  </div>
 
 <br>
@@ -250,11 +263,13 @@ button.start-walk{
 
 <div>
 
+<div class="hidden">
 <h2> Data and Random Walk Explorer </h2>
-<div id="data"></div>
-<div id="random_walk"></div>
-<div id="data_dendro"></div>
-<div id="chart_dendro"></div>
+    <div id="data"></div>
+    <div id="random_walk"></div>
+    <div id="data_dendro"></div>
+</div>
+
 
 
 <script>

@@ -400,7 +400,27 @@ var load = function(){
             </h2>
 
             <h4>
-            Explain about communities. crib from paper.
+           <p> Community detection is a broad, open-ended problem that attempts to answer questions of the archetype "What are some mesoscale structures
+           in this network?" Given a network, how do we find groups of nodes that are highly dense, and only sparsely connected to the rest of the network. 
+           Finding these communities are important for a variety of applications, but notably to musical composition, they guide the composition process.
+           A strong community represents a strong melody within a particular portion of a piece. Being able to identify, and manipulate, these communities a priori 
+           is a valuable advantage in composition.
+           </p>
+
+           <p> 1.) Infomap - this method is based on the time spent in certain modules of a random walker. 
+           It derives from theory generally stating that a strong community will "trap" a random walker for a long time. </p>
+
+           <p> 2.) Label Propogation - label propogation method, or LPM, is a method based on diffusion - node labels are treated as dynamic quantities, and
+           are diffused based on a node's neighbors assignments until a steady state is reached. </p>
+
+           <p> 3.) Louvain - this classic algorithm is a fast greedy optimization to a quality function. It's incredibly fast and yields decent results. </p>
+
+           <p> 4.) Hierarchical Links - this creative method employs a hierarchical dendrogram-cutting approach to a dendrogram of links - this 
+           clusters the links natively, not the edges, but allows for overlapping community of nodes. </p>
+
+
+
+            
             </h4>
             <div class="row">
               <div class="col-sm-3">
