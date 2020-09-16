@@ -1,6 +1,6 @@
 #Cython files
 *.pyc
-
+./flaskapp/__pycache__
 #Music files
 *.mid
 *.xml
