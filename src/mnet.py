@@ -16,7 +16,7 @@ General Functions
 '''
 #given note in stream, returns measure
 def getMeasureFromNote(note_in_stream):
-    return str(note_in_stream.activeSite).split()[1]
+    return note_in_stream.activeSite.number
 
 #Convert music21 pitch notation for flats ('-') to Tone.js notation('b')
 def convert_flat_js(walk):
