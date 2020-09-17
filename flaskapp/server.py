@@ -65,9 +65,10 @@ def make_graph_from_file(filename, encoding, key, offsets,\
                 topline = section
                 break
 				 #ideally throw error if there is no part, need to reupload file
-        topline_notes =list(topline.recurse().notes)
+        topline_notes =topline.recurse().notes
         nodelst_basic, pitchdict, og_walk =mnet.convert_basic(topline_notes)
         g=mnet.create_graph(nodelst_basic)
+        print("basic graph created")
 		
     #grouped graph, returns multiedge graph and pitch dictionary
     if encoding == "grouped": 
@@ -134,7 +135,7 @@ def make_randomwalk_json(graph, encoding_method):
 
 #Input weighted community graph, add pitch labels
 def make_visualizable_graph(graph, pitchdict, cur_community, changed_edges):
-
+  
     #add communities
     community_graph, dendro = cd.helper_community_detection(mnet.convert_to_weighted(\
             graph, False), cur_community)
@@ -158,9 +159,8 @@ def make_visualizable_graph(graph, pitchdict, cur_community, changed_edges):
     for edge in changed_edges:
         print("edge label changed for json")
         community_graph.edges[edge[0], edge[1]]["changed_edge"]=1 
-
+  
     return community_graph, dendro
-
 
 '''
 ****************************************
@@ -294,8 +294,10 @@ def shiftEncoding(name=None):
     changed_edges = {} #reset
     graph, pitchdict, og_walk = make_graph_from_file(filename,\
              cur_graph_encoding, key, offsets, grouping, changed_edges)
-    data = json_graph.node_link_data(make_visualizable_graph(\
-                graph, pitchdict, cur_community, changed_edges))
+    vis_graph, dendro = make_visualizable_graph(\
+            graph, pitchdict, cur_community, changed_edges)
+
+    data = json_graph.node_link_data(vis_graph)
 
 
     # write file for testing
@@ -344,8 +346,11 @@ def shiftCommunity(name=None):
 
     print("cur_community is ", cur_community)
  
-    data = json_graph.node_link_data(make_visualizable_graph(\
-            graph, pitchdict, cur_community, changed_edges) )
+    vis_graph, dendro = make_visualizable_graph(\
+            graph, pitchdict, cur_community, changed_edges)
+
+
+    data = json_graph.node_link_data(vis_graph)
 
     return jsonify(data = data)
 	
@@ -388,8 +393,12 @@ def success():
 
     graph, pitchdict, og_walk = make_graph_from_file(filename,\
          cur_graph_encoding, key, offsets, grouping, changed_edges)
-    data = json_graph.node_link_data(make_visualizable_graph(\
-                 graph, pitchdict, cur_community, changed_edges))
+ 
+    vis_graph, dendro = make_visualizable_graph(\
+            graph, pitchdict, cur_community, changed_edges)
+
+
+    data = json_graph.node_link_data(vis_graph)
     walk = mnet.convert_flat_js(og_walk)
     setting = "Original Melody"
 
@@ -437,8 +446,11 @@ def changeparams():
     # Recalculate data and random walk
     graph, pitchdict, og_walk = make_graph_from_file(filename,\
          cur_graph_encoding,key, offsets, grouping, changed_edges)
-    data = json_graph.node_link_data(make_visualizable_graph(\
-                 graph, pitchdict, cur_community, changed_edges))
+    vis_graph, dendro = make_visualizable_graph(\
+            graph, pitchdict, cur_community, changed_edges)
+
+
+    data = json_graph.node_link_data(vis_graph)
     walk = mnet.convert_flat_js(og_walk) #make_randomwalk_json(graph, cur_walk_encoding)
     setting="Original Melody"
     
@@ -540,8 +552,11 @@ def change_edge_weight():
 
     setting = "Random Walk"
     walk = make_randomwalk_json(graph, cur_walk_encoding)
-    data = json_graph.node_link_data(make_visualizable_graph(\
-                 graph, pitchdict, cur_community, changed_edges)) 
+    vis_graph, dendro = make_visualizable_graph(\
+            graph, pitchdict, cur_community, changed_edges)
+
+
+    data = json_graph.node_link_data(vis_graph)
 
 
     return jsonify(data = data, walk = walk, grouping = grouping, \
