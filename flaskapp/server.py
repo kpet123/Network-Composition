@@ -14,8 +14,8 @@ from cdlib import algorithms
 import networkx as nx
 import infomap
 import igraph as ig
-import _mnet as mnet
-#import mnet
+#import _mnet as mnet
+import mnet
 from networkx.readwrite import json_graph
 import comm_det as cd
 
@@ -82,7 +82,7 @@ def make_graph_from_file(filename, encoding, key, offsets,\
                 topline = section
                 break
 				#ideally throw error if there is no part, need to reupload file
-        topline_notes =list(topline.recurse().notes)
+        topline_notes =topline.recurse().notes
         nodelst_grouped, transition_lst, pitchdict, og_walk  = \
                 mnet.convert_grouping(topline_notes, grouping)
         print("transition list is ", transition_lst)
@@ -92,7 +92,7 @@ def make_graph_from_file(filename, encoding, key, offsets,\
     #RN graph, returns multiedge graph and pitch dictionary
     if encoding == "rn": 
         s = music21.corpus.parse(filename)
-        chord_lst = list(s.chordify().recurse().notes)
+        chord_lst = s.chordify().recurse().notes
         nodelst, pitchdict, og_walk  = mnet.convert_chord_note(\
                 chord_lst, key)
         g=mnet.create_graph(nodelst)
@@ -100,9 +100,9 @@ def make_graph_from_file(filename, encoding, key, offsets,\
     #Grouped RN graph, returns multiedge graph + pitch labels
     if encoding == "grouped_rn":  
         s = music21.corpus.parse(filename)
-        chord_lst = s.flat.chordify().recurse().notes
+        chord_lst = s.chordify().recurse().getElementsByClass('Chord')
         nodelst_group, transition_edges, pitchdict, og_walk = \
-            mnet.convert_grouped_rn(chord_lst,offsets, key)
+            mnet.convert_grouped_rn(chord_lst, grouping, key)
         g=mnet.create_graph(nodelst_group)
 		 
     #alter edges according to changed_edges
