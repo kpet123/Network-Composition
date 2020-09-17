@@ -168,6 +168,7 @@ def convert_grouped_rn(chord_lst, offsets, key):
     i=0
     g=1
     node_group=offsets[0]    
+    print("about to do rn analysis")
     rn_lst = [music21.roman.romanNumeralFromChord(chord,\
          music21.key.Key(key)) for chord in chord_lst]    
     while i < len(chord_lst):
@@ -176,14 +177,14 @@ def convert_grouped_rn(chord_lst, offsets, key):
         #Extract note + rn
        
         chord=chord_lst[i]
-        print(chord)
+        #print(chord)
         #extract melody
         mel = max(chord.pitches)
-        print("melody is ", mel)
+        #print("melody is ", mel)
         #extract harmony
 
         harm = chord.remove(mel)
-        print("mel is ", mel)
+        #print("mel is ", mel)
         rn = rn_lst[i]
 
         rn=str(rn).split()[1]
@@ -193,7 +194,8 @@ def convert_grouped_rn(chord_lst, offsets, key):
         '''
         #print("looking for ", offsets[g] )
         #print("currently at ", chord.offset)
-        if chord.offset == offsets[g]:
+        print("grouped RN , group is ", getMeasureFromNote(chord))
+        if getMeasureFromNote(chord) == offsets[g]:
             node_group = offsets[g]
             g+=1
             if i !=0:
