@@ -173,7 +173,8 @@ def convert_grouped_rn(chord_lst, offsets, key):
     node_group=offsets[0]    
     print("about to do rn analysis")
     rn_lst = [music21.roman.romanNumeralFromChord(chord,\
-         music21.key.Key(key)) for chord in chord_lst]    
+         music21.key.Key(key)) for chord in chord_lst]
+    print("rn analysis finished")   
     while i < len(chord_lst):
         
         
