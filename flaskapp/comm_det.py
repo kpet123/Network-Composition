@@ -36,7 +36,7 @@ def generate_dendrogram(partition_data):
     
     # generate empty dicts
     d = {"name" : "Music Network", "children" : create_dicts(list(level_data.values()))}
-
+    print("in dengrogram dictionary is ", d)
     # fill dicts with data
     for name, hier in partition_data.items():
         listy = d['children']

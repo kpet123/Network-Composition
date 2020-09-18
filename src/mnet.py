@@ -88,6 +88,8 @@ Return:
 
 
 def convert_grouping(lst, grouping):
+    #lst=list(lst)
+    print("in convert grouping, notes are ", lst)
     melody_walk = []
     convert_note = lambda x: x.name+str(x.octave)
     pitchdict = {}
@@ -99,16 +101,17 @@ def convert_grouping(lst, grouping):
     node_group=grouping[g]
     while i < len(lst):
         note = lst[i]
+        print("note is ", note)
         if type(note) == music21.chord.Chord :
             node_id = convert_note(max(note.pitches))
         elif type(note) == music21.note.Note:
             node_id = convert_note(note)
         else:
             print("ERROR UNHANDLED TYPE ", type(note))
-        print("In convert, grouping is ", grouping)
-        print("g is ", g)
-        #print(getMeasureFromNote(note))
-        if getMeasureFromNote(note) == str(grouping[g]):
+        #print("In convert, grouping is ", grouping)
+        #print("g is ", g)
+        print(getMeasureFromNote(note))
+        if getMeasureFromNote(note) == grouping[g]:
             node_group = grouping[g]
             g+=1
             if i !=0:

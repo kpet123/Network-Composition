@@ -87,6 +87,7 @@ def make_graph_from_file(filename, encoding, key, offsets,\
                 mnet.convert_grouping(topline_notes, grouping)
         print("transition list is ", transition_lst)
         g=mnet.create_graph(nodelst_grouped)
+        print("making grouped graph, g is ", g)
 		
 
     #RN graph, returns multiedge graph and pitch dictionary
@@ -209,6 +210,7 @@ json.dump(walk, out_file)
 out_file.close() 
 #print(walk)
 #Convert graph to weighted graph with pitch names+ comm labels
+print("initial graph is ", graph)
 vis_graph, dendro = make_visualizable_graph(\
             graph, pitchdict, cur_community, changed_edges)
 
