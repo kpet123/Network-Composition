@@ -270,6 +270,7 @@ def shiftEncoding(name=None):
     global graph
     global cur_walk_encoding
     global changed_edges    
+    global dendro 
 
     print("Filename is ", filename)
 	#Send back filename, key, grouping and offsets
@@ -309,7 +310,7 @@ def shiftEncoding(name=None):
     walk = mnet.convert_flat_js(og_walk) #make_randomwalk_json(graph, cur_walk_encoding)
     setting = "Original Melody"
     #Return data through javascript function
-    return jsonify(data = data, walk = walk, setting=setting)
+    return jsonify(data = data, walk = walk, setting=setting, dendro=dendro)
 
 
 @app.route('/shiftCommunity', methods=['GET', 'POST'])
@@ -328,6 +329,7 @@ def shiftCommunity(name=None):
     global graph
     global cur_walk_encoding
     global changed_edges
+    global dendro 
 
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
@@ -354,7 +356,7 @@ def shiftCommunity(name=None):
 
     data = json_graph.node_link_data(vis_graph)
 
-    return jsonify(data = data)
+    return jsonify(data = data, dendro=dendro)
 	
 
 
@@ -380,7 +382,7 @@ def success():
     global cur_walk_encoding
     global setting
     global changed_edges
-
+    global dendro 
     print("in update ajax method")
     f = request.files['file'] 
 
@@ -404,7 +406,7 @@ def success():
     walk = mnet.convert_flat_js(og_walk)
     setting = "Original Melody"
 
-    return jsonify(data=data, walk = walk, setting=setting)
+    return jsonify(data=data, walk = walk, setting=setting, dendro=dendro)
 
 
 
@@ -426,7 +428,7 @@ def changeparams():
     global graph
     global cur_walk_encoding
     global changed_edges
-
+    global dendro 
 
     #Get requested values
 
@@ -457,7 +459,7 @@ def changeparams():
 
     return jsonify(data = data, walk = walk, \
                 grouping = grouping, key=key, offsets=offsets,\
-                         setting=setting)
+                         setting=setting, dendro=dendro)
 
 
 #Changes mode of random walk to ignore or consider community
@@ -477,7 +479,7 @@ def change_walk_encoding():
     global cur_walk_encoding
     global setting
     global changed_edges
-
+    global dendro 
     #Get requested values
 
     encoding_option = request.form['walk_type']  
@@ -510,7 +512,7 @@ def change_walk_encoding():
         walk = mnet.str_commmunity_rhythm_JSON(walk, data) 
 
     return jsonify(data = data, walk = walk, grouping = grouping, \
-                key = key, offsets = offsets, setting = setting)
+                key = key, offsets = offsets, setting = setting, dendro=dendro)
 
 
 #Changes mode of random walk to ignore or consider community
@@ -530,7 +532,7 @@ def change_edge_weight():
     global cur_walk_encoding
     global setting
     global changed_edges
-
+    global dendro 
     #Get requested values
 
     src = request.form['src']
@@ -558,7 +560,7 @@ def change_edge_weight():
 
 
     return jsonify(data = data, walk = walk, grouping = grouping, \
-                key = key, offsets = offsets, setting = setting)
+                key = key, offsets = offsets, setting = setting, dendro=dendro)
 
 
 
