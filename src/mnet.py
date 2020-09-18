@@ -68,7 +68,7 @@ def convert_basic(lst):
                       "id": node})
 
         nodelst.append(node)
-            
+    print("in convert basics, graph is ", nodelst)        
     pitchdict = dict((zip(nodelst, nodelst)))
     return nodelst, pitchdict, melody_walk
 
@@ -101,7 +101,7 @@ def convert_grouping(lst, grouping):
     node_group=grouping[g]
     while i < len(lst):
         note = lst[i]
-        print("note is ", note)
+        #print("note is ", note)
         if type(note) == music21.chord.Chord :
             node_id = convert_note(max(note.pitches))
         elif type(note) == music21.note.Note:
@@ -110,7 +110,7 @@ def convert_grouping(lst, grouping):
             print("ERROR UNHANDLED TYPE ", type(note))
         #print("In convert, grouping is ", grouping)
         #print("g is ", g)
-        print(getMeasureFromNote(note))
+        #print(getMeasureFromNote(note))
         if getMeasureFromNote(note) == grouping[g]:
             node_group = grouping[g]
             g+=1

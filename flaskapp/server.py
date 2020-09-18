@@ -431,18 +431,14 @@ def changeparams():
     #Get requested values
 
     grouping_str = request.form['grouping']  
-    offsets_str = request.form['offsets'] 
     key = request.form['key']
     
-    # Convert grouping and offsets to list of ints
+    # Convert grouping to list of ints
     f = lambda x: int(x)  
     grouping = grouping_str.split()
     grouping = list(map(f, grouping))
     grouping.append("end")
  
-    offsets = offsets_str.split()
-    offsets = list(map(f, offsets))
-    offsets.append("end")
 
     print("grouping is ", grouping)   
     # Recalculate data and random walk

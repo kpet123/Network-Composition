@@ -90,7 +90,6 @@ var upload = function() {
 var change_params = function() {
          var form_data = {
             key: $('#key').val(),
-            offsets: $('#offsets').val(),
             grouping: $('#grouping').val(),
 
          };
@@ -264,14 +263,15 @@ var load = function(){
 
                  </p>
                 <p>
-                 Currently, subgraph creation for the <i> Grouped
-                </i> graph and <i>Grouped Roman Numeral</i> graph
-                happens in two ways. The <i>Grouped</i> graph is 
-                delimited by measure number, while the <i>Grouped
-                Roman Numeral </i> is delimited by absolute note 
-                offset. TRY TO FIX THIS BEFORE PUBLISHING.
-                These delimiters allow separate "subgraphs" to 
-                be created. [explain this better]  
+                 You can create a graph with multiple distinct sections, or 
+                 subgraphs, by inputing a list of measures that you want 
+                 a subgraph to start. For example, if a piece is in ABA form and 
+                 you want to keep the original harmonic character in each section,
+                 you can input the measure number that begins the first A section, 
+                 the measure number of the first measure in the B section, 
+                 and the measure starting the last A section. This way, GCbot will
+                 create a separate minigraph for each section connected by a single 
+                 transition.   
                  </p>
         `
 
@@ -297,13 +297,7 @@ var load = function(){
                    </label>
                    <input type="text" id="grouping" name="grouping" >
                        ( e.g. <i>1 10 20 </i>) 
-                   <label for="offsets">
-                        Enter New New Note Offsets for Roman Numeral Forced
-                        Grouping Graph as note offsets separated by spaced:
-                    </label>
-                   <input type="text" id="offsets" name="offsets" >
-                    (e.g. <i>1  35 50 90</i>)
-                   <br>
+                  
                 <button id = "update-params-btn" type="button" class="submit">
                 Submit
                 </button>
@@ -341,7 +335,7 @@ var load = function(){
             <p>
             2. <i>Forced Grouping Graph</i> To build this graph, 
             you first divide the score into sections (specified
-            as the "grouping" and "offset" parameters
+            as the "grouping" parameter
             when you upload a new piece). Apart from making the graph 
             look cool, grouping the graph allows the random walk
             composition to have distinct sections with different
