@@ -16,7 +16,7 @@ General Functions
 '''
 #given note in stream, returns measure
 def getMeasureFromNote(note_in_stream):
-    return str(note_in_stream.activeSite).split()[1]
+    return note_in_stream.activeSite.number
 
 #Convert music21 pitch notation for flats ('-') to Tone.js notation('b')
 def convert_flat_js(walk):
@@ -68,7 +68,7 @@ def convert_basic(lst):
                       "id": node})
 
         nodelst.append(node)
-            
+    print("in convert basics, graph is ", nodelst)        
     pitchdict = dict((zip(nodelst, nodelst)))
     return nodelst, pitchdict, melody_walk
 
@@ -88,6 +88,8 @@ Return:
 
 
 def convert_grouping(lst, grouping):
+    #lst=list(lst)
+    print("in convert grouping, notes are ", lst)
     melody_walk = []
     convert_note = lambda x: x.name+str(x.octave)
     pitchdict = {}
@@ -99,16 +101,17 @@ def convert_grouping(lst, grouping):
     node_group=grouping[g]
     while i < len(lst):
         note = lst[i]
+        #print("note is ", note)
         if type(note) == music21.chord.Chord :
             node_id = convert_note(max(note.pitches))
         elif type(note) == music21.note.Note:
             node_id = convert_note(note)
         else:
             print("ERROR UNHANDLED TYPE ", type(note))
-        print("In convert, grouping is ", grouping)
-        print("g is ", g)
+        #print("In convert, grouping is ", grouping)
+        #print("g is ", g)
         #print(getMeasureFromNote(note))
-        if getMeasureFromNote(note) == str(grouping[g]):
+        if getMeasureFromNote(note) == grouping[g]:
             node_group = grouping[g]
             g+=1
             if i !=0:
@@ -168,22 +171,24 @@ def convert_grouped_rn(chord_lst, offsets, key):
     i=0
     g=1
     node_group=offsets[0]    
+    print("about to do rn analysis")
     rn_lst = [music21.roman.romanNumeralFromChord(chord,\
-         music21.key.Key(key)) for chord in chord_lst]    
+         music21.key.Key(key)) for chord in chord_lst]
+    print("rn analysis finished")   
     while i < len(chord_lst):
         
         
         #Extract note + rn
        
         chord=chord_lst[i]
-        print(chord)
+        #print(chord)
         #extract melody
         mel = max(chord.pitches)
-        print("melody is ", mel)
+        #print("melody is ", mel)
         #extract harmony
 
         harm = chord.remove(mel)
-        print("mel is ", mel)
+        #print("mel is ", mel)
         rn = rn_lst[i]
 
         rn=str(rn).split()[1]
@@ -193,7 +198,8 @@ def convert_grouped_rn(chord_lst, offsets, key):
         '''
         #print("looking for ", offsets[g] )
         #print("currently at ", chord.offset)
-        if chord.offset == offsets[g]:
+        print("grouped RN , group is ", getMeasureFromNote(chord))
+        if getMeasureFromNote(chord) == offsets[g]:
             node_group = offsets[g]
             g+=1
             if i !=0:

@@ -33,10 +33,11 @@ def generate_dendrogram(partition_data):
     '''
     # to keep track of recursion stop points
     level_data = {tier: max([a[tier] for a in partition_data.values()]) for tier in range(len(list(partition_data.values())[0]))} 
-    
+    print("in dendrogram, level_data is ", level_data)
+    print("in dendrogram partition data is ", partition_data)
     # generate empty dicts
     d = {"name" : "Music Network", "children" : create_dicts(list(level_data.values()))}
-
+    print("in dengrogram dictionary is ", d)
     # fill dicts with data
     for name, hier in partition_data.items():
         listy = d['children']
