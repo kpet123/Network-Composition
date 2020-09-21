@@ -400,13 +400,25 @@ var load = function(){
             </h2>
 
             <h4>
-           <p> Community detection is a broad, open-ended problem that attempts to answer questions of the archetype "What are some mesoscale structures
-           in this network?" Given a network, how do we find groups of nodes that are highly dense, and only sparsely connected to the rest of the network. 
-           Finding these communities are important for a variety of applications, but notably to musical composition, they guide the composition process.
-           A strong community represents a strong melody within a particular portion of a piece. Being able to identify, and manipulate, these communities a priori 
-           is a valuable advantage in composition.
-           </p>
 
+           
+           <p> Community detection is used to partition nodes and/or links into 'communities', or different groups.
+           The general idea is based on finding groups of nodes more connected to eachother than other nodes in the network. 
+           Finding these communities can guide the composition process by letting you see patterns in the data.
+          
+           </p>
+           <p>Community structure can also be explicitly “sonically represented” in the generated 
+           composition by varying note length based on community membership or the type of 
+           community transition. For example, if the graph is clustered using a hierarchical 
+           partitioning algorithm, you can define different note lengths for a walker about to 
+           leave a community to create a natural delimination in the music. 
+           Furthermore, transitioning to a more ‘similar’ community could result in a different length change
+           than transitions to a more ‘different’ community, thus creating a sense of hierarchical structure in 
+           the resulting piece.
+           </p> 
+           <p>
+           Here are a few methods availible right now
+           </p>
            <p> 1.) Infomap - this method is based on the time spent in certain modules of a random walker. 
            It derives from theory generally stating that a strong community will "trap" a random walker for a long time. </p>
 
@@ -454,6 +466,16 @@ var load = function(){
 
         `            
             <h2> Change Edge Weight</h2>
+
+            <p>Links within and between communities can then be strengthened or 
+            weakened to affect the random walker’s traversal through the network. 
+            Generally, increasing the weight of links joining different communities 
+            will increase the probability of a random walker leaving its current community, 
+            thus creating a composition with more shifts between communities. 
+            However, the extent of this phenomenon and the effect on increasing within-community 
+            edge weights depends on the structure of the community subgraph and how it is 
+            situated in the overall graph. 
+            </p>
             <h4>
                 You can change the weight (thickness) of edges 
                 by clicking on a link to select it (the selected 
