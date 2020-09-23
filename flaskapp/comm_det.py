@@ -16,7 +16,8 @@ def create_dicts(maxes, level = 0):
 		dicts.append({
 			'name': 'Level ' + str(level) + ', Group ' + str(i+1),
 			'children': create_dicts(maxes, level + 1),
-            'comm': str(i+1)
+            'comm': str(i+1),
+            'level': str(level)
 		})
 
 	return dicts
@@ -36,7 +37,7 @@ def generate_dendrogram(partition_data):
     level_data = {tier: max([a[tier] for a in partition_data.values()]) for tier in range(len(list(partition_data.values())[0]))} 
     
     # generate empty dicts
-    d = {"name" : "Music Network", "children" : create_dicts(list(level_data.values())), 'comm': -1}
+    d = {"name" : "Music Network", "children" : create_dicts(list(level_data.values())), 'comm': -1, 'level': -1}
 
     # check if non-hierarchical - don't use recursion approach
     #if 
@@ -46,7 +47,7 @@ def generate_dendrogram(partition_data):
         listy = d['children']
         for tier in hier:
             listy = listy[tier-1]['children']
-        listy.append({"name" : name, "value":1})
+        listy.append({"name" : name, "level":-37})
 
     # remove empty leaves
     if len(level_data.keys()) > 1:
