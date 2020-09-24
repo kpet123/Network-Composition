@@ -127,7 +127,7 @@ def make_communities(g, method):
         #os.system('python hlc -o temp_hlc_clusters.txt' )
 
 
-def helper_community_detection(graph, method):
+def helper_community_detection(graph, method, returnDendro=True):
     '''
     Helper function to route graph and method to correct community detection
 
@@ -189,7 +189,10 @@ def helper_community_detection(graph, method):
             graph.nodes[note]['comm'] = [0] 
     
     # ~~~~~~~~~~~~~~~~~~~
-    d = generate_dendrogram(partition_data)
+    if returnDendro==True:
+        d = generate_dendrogram(partition_data)
+    else:
+        d={}
 
     # ~~~~~~~~~~~~~~~~~~~
     return graph, d
