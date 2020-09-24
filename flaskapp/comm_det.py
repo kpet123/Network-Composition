@@ -15,7 +15,9 @@ def create_dicts(maxes, level = 0):
 	for i in range(maxes[level]):
 		dicts.append({
 			'name': 'Level ' + str(level) + ', Group ' + str(i+1),
-			'children': create_dicts(maxes, level + 1)
+			'children': create_dicts(maxes, level + 1),
+            'comm': str(i+1),
+            'level': str(level)
 		})
 
 	return dicts
@@ -36,19 +38,25 @@ def generate_dendrogram(partition_data):
     print("in dendrogram, level_data is ", level_data)
     print("in dendrogram partition data is ", partition_data)
     # generate empty dicts
-    d = {"name" : "Music Network", "children" : create_dicts(list(level_data.values()))}
-    print("in dengrogram dictionary is ", d)
+
+    d = {"name" : "Music Network", "children" : create_dicts(list(level_data.values())), 'comm': -1, 'level': -1}
+
+    # check if non-hierarchical - don't use recursion approach
+    #if 
+
+
     # fill dicts with data
     for name, hier in partition_data.items():
         listy = d['children']
         for tier in hier:
             listy = listy[tier-1]['children']
-        listy.append({"name" : name, "value":1})
+        listy.append({"name" : name, "level":-37})
 
     # remove empty leaves
-    ch = d['children']
-    for group in ch:
-        group['children'] = [x for x in group['children'] if x['children']]
+    if len(level_data.keys()) > 1:
+        ch = d['children']
+        for group in ch:
+            group['children'] = [x for x in group['children'] if x['children']]
 
     # save
     j = json.dumps(d, indent=4)
