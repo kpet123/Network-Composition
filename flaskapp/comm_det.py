@@ -34,23 +34,36 @@ def generate_dendrogram(partition_data):
             None
     '''
     # to keep track of recursion stop points
-    level_data = {tier: max([a[tier] for a in partition_data.values()]) for tier in range(len(list(partition_data.values())[0]))} 
+    tier_range = range(len(list(partition_data.values())[0]))
+    tier_num_groups = [max([a[tier] for a in partition_data.values()]) for tier in tier_range]
+    level_data = {tier: tier_num_groups[tier] for tier in tier_range} 
     print("in dendrogram, level_data is ", level_data)
     print("in dendrogram partition data is ", partition_data)
+    
+    
     # generate empty dicts
-
     d = {"name" : "Music Network", "children" : create_dicts(list(level_data.values())), 'comm': -1, 'level': -1}
 
     # check if non-hierarchical - don't use recursion approach
-    #if 
-
+    if len(list(partition_data.values())[0]) != 1:
+        pass
+    
 
     # fill dicts with data
+    # for each node, traverse down into their grouping
     for name, hier in partition_data.items():
         listy = d['children']
+        stored_comm = -1
         for tier in hier:
-            listy = listy[tier-1]['children']
-        listy.append({"name" : name, "level":-37})
+            listy = listy[tier-1]
+            if int(listy['level']) == 1:
+                stored_comm = listy['comm']
+            elif int(listy['level']) > 1:
+                listy['comm'] = stored_comm
+            
+            listy = listy['children']
+        
+        listy.append({"name" : name, "level":-37, "comm": hier[1]})
 
     # remove empty leaves
     if len(level_data.keys()) > 1:
