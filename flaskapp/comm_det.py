@@ -39,7 +39,7 @@ def generate_dendrogram(partition_data):
     print("in dendrogram partition data is ", partition_data)
     # generate empty dicts
 
-    d = {"name" : "Music Network", "children" : create_dicts(list(level_data.values())), 'comm': -1, 'level': -1}
+    d = {"name" : "Music Network", "children" : create_dicts(list(level_data.values())), 'comm': [-1, -1], 'level': -1}
 
     # check if non-hierarchical - don't use recursion approach
     #if 
@@ -50,8 +50,9 @@ def generate_dendrogram(partition_data):
         listy = d['children']
         for tier in hier:
             listy = listy[tier-1]['children']
-        listy.append({"name" : name, "level":-37})
-
+            print("###########################listy is ", listy)
+        listy.append({"name" : name, "level":-37, "comm":hier[-1]})
+    print("after filling d is ", d)
     # remove empty leaves
     if len(level_data.keys()) > 1:
         ch = d['children']
