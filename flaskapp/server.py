@@ -135,11 +135,13 @@ def make_randomwalk_json(graph, encoding_method):
     return rwlst
 
 #Input weighted community graph, add pitch labels
-def make_visualizable_graph(graph, pitchdict, cur_community, changed_edges):
+def make_visualizable_graph(graph, pitchdict, cur_community, changed_edges, returnDendro=True):
   
     #add communities
-    community_graph, dendro = cd.helper_community_detection(mnet.convert_to_weighted(\
-            graph, False), cur_community)
+
+    weighted_graph = mnet.convert_to_weighted(graph, False)
+    community_graph, dendro = cd.helper_community_detection(\
+        weighted_graph, cur_community, returnDendro = returnDendro)
     #weighted_graph = mnet.convert_to_weighted(graph, False)
 
     #Set pitches
@@ -334,24 +336,30 @@ def shiftCommunity(name=None):
 	#Send back filename, key, grouping and offsets
     msg = request.get_json()
     new_data = data
-
+    returnDendro=True
 	#Change to Infomap
     if msg == 0:     
-	    cur_community='infomap'
+        cur_community='infomap'
+        returnDendro=True
     #Change to LPM
     if msg == 1:
         cur_community = 'LPM'
+        returnDendro=True
     #Change to Louvain
     if msg == 2:
         cur_community = 'louvain'
+        returnDendro=True
     #Change to HLC
     if msg == 3:
         cur_community = 'HLC'
+        returnDendro=False
 
-    print("cur_community is ", cur_community)
+
+
  
     vis_graph, dendro = make_visualizable_graph(\
-            graph, pitchdict, cur_community, changed_edges)
+            graph, pitchdict, cur_community, changed_edges, returnDendro=returnDendro)
+
 
 
     data = json_graph.node_link_data(vis_graph)
