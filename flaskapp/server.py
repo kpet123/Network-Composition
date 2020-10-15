@@ -178,7 +178,7 @@ TODO: implement encoding
 changed_edges={}
 
 #Name of currently used file
-filename = 'telemannfantasie1.xml'#DO NOT PASS
+filename = 'beethoven_fur_elise.xml'#DO NOT PASS
 
 #Key of piece, used for Roman Numeral Analysis
 key = 'A'
