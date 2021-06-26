@@ -24,4 +24,7 @@ environemnt for the Python side of this project.
     
     pip install cdlib # this may have dependecny issue, look into
 
-5. make symblink of mnet.py to flaskapp folder. Delete current mnet.py file in flaskapp folder (should be blank)
+5. Make symblink of mnet.py to flaskapp folder. Delete current mnet.py file in flaskapp folder (should be blank)
+
+
+6. To run, navigate into flaskapp directory and type "python server.py". The output will have the test server
