@@ -10,7 +10,7 @@ from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 # Network imports
-from cdlib import algorithms
+#from cdlib import algorithms
 import networkx as nx
 import infomap
 import igraph as ig

@@ -1,3 +1,5 @@
+#conda env create -f environment.yml
+
 name: music-network-env
 
 channels:
@@ -8,7 +10,7 @@ channels:
  - iainsgillis
 dependencies:
  - python=3.7 
- - ipykernel 
+ - jupyterlab 
  - snakemake
  - numpy 
  - matplotlib
@@ -18,3 +20,4 @@ dependencies:
  - spyder
  - python-igraph
  - scipy
+ - pandas

@@ -16,12 +16,12 @@ environemnt for the Python side of this project.
 
     conda activate music-network-env
 
-3. Create Jupyter Kernel:
-
-    python -m ipykernel install --user --name=<name_of_env>
-
 4. Install nessesary packages with pip 
+
+    pip install flask
 
     pip install infomap
     
-    pip install cdlib
+    pip install cdlib # this may have dependecny issue, look into
+
+5. make symblink of mnet.py to flaskapp folder. Delete current mnet.py file in flaskapp folder (should be blank)

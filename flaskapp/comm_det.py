@@ -1,6 +1,6 @@
 import json
 
-from cdlib import algorithms
+#from cdlib import algorithms
 import networkx as nx
 import infomap
 import igraph as ig
