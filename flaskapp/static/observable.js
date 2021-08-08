@@ -5,8 +5,7 @@ import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/run
 
 //import notebook from "https://api.observablehq.com/@kpet123/music-composition-graph.js?v=3"
 
-import notebook from "https://api.observablehq.com/@kpet123/music-composition-graph-link-view.js?v=3";
-
+import notebook from "https://api.observablehq.com/@nikkipet/music-composition-graph-with-straight-edges.js?v=3"
 //which cells to render
 const renders = {
     "viewof start_walk": "#start_walk",
@@ -23,6 +22,7 @@ const renders = {
     "passed_dst": "#chosen_target",
     "passed_weight": "#cur_weight",
     "viewof speed": "#speed",
+    "fullscreen": "#fullscreen",
   };
 //Code adapted from
 //https://talk.observablehq.com/t/embedding-only-parts-of-notebook/2470/4

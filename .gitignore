@@ -5,7 +5,7 @@
 *.mid
 *.xml
 *.mxl
-
+/library/*
 #Audio and video files
 *.mp3
 *.mp4
