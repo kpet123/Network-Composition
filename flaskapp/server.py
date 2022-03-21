@@ -10,7 +10,7 @@ from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 # Network imports
-from cdlib import algorithms
+#from cdlib import algorithms
 import networkx as nx
 import infomap
 import igraph as ig
@@ -71,6 +71,9 @@ def make_graph_from_file(filename, encoding, key, offsets,\
         print("basic graph created")
 		
     #grouped graph, returns multiedge graph and pitch dictionary
+    '''
+	only going to correct rests and ties on this one
+    '''
     if encoding == "grouped": 
 
         s = music21.corpus.parse(filename)
@@ -83,6 +86,7 @@ def make_graph_from_file(filename, encoding, key, offsets,\
                 break
 				#ideally throw error if there is no part, need to reupload file
         topline_notes =topline.recurse().notes
+           
         nodelst_grouped, transition_lst, pitchdict, og_walk  = \
                 mnet.convert_grouping(topline_notes, grouping)
         print("transition list is ", transition_lst)

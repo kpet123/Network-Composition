@@ -5,7 +5,7 @@ import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/run
 
 //import notebook from "https://api.observablehq.com/@kpet123/music-composition-graph.js?v=3"
 
-import notebook from "https://api.observablehq.com/@kpet123/music-composition-graph-link-view.js?v=3";
+import notebook from "https://api.observablehq.com/d/02ec8e5531ada045@1660.js?v=3";
 
 //which cells to render
 const renders = {
